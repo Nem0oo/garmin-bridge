@@ -1,6 +1,5 @@
 import os
 from mcp.server.fastmcp import FastMCP
-import subprocess
 from common.garmin_function import get_last_activity_id
 from common.json_activity import generate_activity_json
 

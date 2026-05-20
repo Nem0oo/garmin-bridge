@@ -1,7 +1,21 @@
+import bisect
 from datetime import datetime, timedelta
 from .config import GARMIN_DB, GARMIN_ACTIVITIES, GARMIN_SUMMARY_DB
 from .connection_helper import db_connection
 from .tools import time_to_hours, time_to_minutes
+
+def get_activity_records(activity_id: str):
+    query = """
+        SELECT timestamp, distance, cadence, altitude, hr, rr, speed, temperature
+        FROM activity_records
+        WHERE activity_id = ?
+        ORDER BY record
+    """
+    with db_connection(GARMIN_ACTIVITIES) as conn:
+        rows = conn.execute(query, (activity_id,)).fetchall()
+    if not rows:
+        raise ValueError("Aucune donnée trouvée pour cette activité.")
+    return rows
 
 def get_last_activity_id():
     query = """
@@ -102,22 +116,36 @@ def get_daily_metrics(n_days=7):
             ORDER BY day ASC
         """, (start_date,)).fetchall()
 
+    if not summary_rows:
+        return []
+
+    all_days = [row["day"] for row in summary_rows]
+    placeholders = ",".join("?" * len(all_days))
+    max_day = max(all_days)
+
+    with db_connection(GARMIN_DB) as garmin_con:
+        sleep_rows = garmin_con.execute(
+            f"SELECT * FROM sleep WHERE day IN ({placeholders})", all_days
+        ).fetchall()
+        weight_rows = garmin_con.execute(
+            "SELECT day, weight FROM weight WHERE day <= ? ORDER BY day ASC",
+            (max_day,)
+        ).fetchall()
+
+    sleep_by_day = {row["day"]: row for row in sleep_rows}
+    weight_days = [row["day"] for row in weight_rows]
+    weight_values = [row["weight"] for row in weight_rows]
+
+    def last_weight_before(day):
+        idx = bisect.bisect_right(weight_days, day) - 1
+        return weight_values[idx] if idx >= 0 else None
+
     results = []
     for row in summary_rows:
         day_str = row["day"]
+        sleep = sleep_by_day.get(day_str)
 
-        # Sommeil
-        with db_connection(GARMIN_DB) as garmin_con:
-            sleep = garmin_con.execute("SELECT * FROM sleep WHERE day = ?", (day_str,)).fetchone()
-
-            # Poids
-            weight_row = garmin_con.execute("""
-                SELECT weight FROM weight
-                WHERE day <= ?
-                ORDER BY day DESC LIMIT 1
-            """, (day_str,)).fetchone()
-
-        result = {
+        results.append({
             "date": day_str,
             "resting_hr": row["rhr_avg"],
             "average_hr": row["hr_avg"],
@@ -125,7 +153,7 @@ def get_daily_metrics(n_days=7):
             "steps": row["steps"],
             "calories": row["calories_avg"],
             "stress_level": row["stress_avg"],
-            "weight": weight_row["weight"] if weight_row else None,
+            "weight": last_weight_before(day_str),
             "sleep": {
                 "duration_hours": time_to_hours(sleep["total_sleep"]) if sleep else None,
                 "deep_hours": time_to_hours(sleep["deep_sleep"]) if sleep else None,
@@ -144,7 +172,6 @@ def get_daily_metrics(n_days=7):
             "hydration_intake": row["hydration_intake"],
             "spo2_avg": row["spo2_avg"],
             "rr_waking_avg": row["rr_waking_avg"]
-        }
+        })
 
-        results.append(result)
     return results

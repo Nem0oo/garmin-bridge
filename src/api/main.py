@@ -1,15 +1,12 @@
 from fastapi.middleware.cors import CORSMiddleware
-import sqlite3
-import os
-from datetime import datetime, timedelta
-from fastapi import Header, HTTPException, Depends, FastAPI, Query
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi import HTTPException, Depends, FastAPI, Query
+from fastapi.responses import JSONResponse
 from fastapi import Path as FPath
 import json
 from .plot_activity import generate_activity_plot
 from common.json_activity import generate_activity_json
 from common.security import verify_api_key
-from common.config import API_KEY, GARMIN_ACTIVITIES, GARMIN_SUMMARY_DB, LOCK_FILE, STATUS_FILE
+from common.config import LOCK_FILE, STATUS_FILE
 from common.garmin_function import get_daily_metrics, get_activity_summary, get_sleep_details, get_last_activity_id, get_activity_name
 from common.sync import trigger_sync
 

@@ -1,28 +1,9 @@
 from datetime import datetime
-from .config import GARMIN_ACTIVITIES
-from .connection_helper import db_connection
+from .garmin_function import get_activity_records
 
 
 def generate_activity_json(activity_id: str):
-    query = """
-        SELECT
-            timestamp,
-            distance,
-            cadence,
-            altitude,
-            hr,
-            rr,
-            speed,
-            temperature
-        FROM activity_records
-        WHERE activity_id = ?
-        ORDER BY record
-    """
-    with db_connection(GARMIN_ACTIVITIES) as conn:
-        rows = conn.execute(query, (activity_id,)).fetchall()
-
-    if not rows:
-        raise ValueError("Aucune donnée trouvée pour cette activité.")
+    rows = get_activity_records(activity_id)
 
     timestamps = [datetime.fromisoformat(row["timestamp"]) for row in rows]
 
@@ -57,15 +38,15 @@ def generate_activity_json(activity_id: str):
         values = [record[key] for record in records]
         return values if any(v is not None for v in values) else None
 
-    result = {
+    return {
         "activity_id": activity_id,
         "summary": {
             "total_distance_km": total_distance_km,
             "duration_seconds": total_seconds,
             "duration_human": duration_str,
             "record_count": len(records),
-            "start_time": records[0]["timestamp"] if records else None,
-            "end_time": records[-1]["timestamp"] if records else None,
+            "start_time": records[0]["timestamp"],
+            "end_time": records[-1]["timestamp"],
         },
         "series": {
             "timestamps": [record["timestamp"] for record in records],
@@ -79,5 +60,3 @@ def generate_activity_json(activity_id: str):
             "temperature_c": build_series("temperature_c"),
         }
     }
-
-    return result

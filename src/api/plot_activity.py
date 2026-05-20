@@ -3,41 +3,18 @@ import io
 from datetime import datetime
 from fastapi.responses import StreamingResponse
 import matplotlib.ticker as ticker
-from common.config import GARMIN_ACTIVITIES
-from common.connection_helper import db_connection
+from common.garmin_function import get_activity_records
 
 def generate_activity_plot(activity_id: str):
-    query = """
-        SELECT
-            timestamp,
-            distance,
-            cadence,
-            altitude,
-            hr,
-            rr,
-            speed,
-            temperature
-        FROM activity_records
-        WHERE activity_id = ?
-        ORDER BY record
-    """
-    with db_connection(GARMIN_ACTIVITIES) as conn:
-        rows = conn.execute(query, (activity_id,)).fetchall()
-
-    if not rows:
-        raise ValueError("Aucune donnée trouvée pour cette activité.")
+    rows = get_activity_records(activity_id)
 
     timestamps = [datetime.fromisoformat(row["timestamp"]) for row in rows]
 
-    if timestamps:
-        duration = timestamps[-1] - timestamps[0]
-        total_minutes = int(duration.total_seconds() // 60)
-        total_hours = total_minutes // 60
-        total_minutes = total_minutes % 60
-        duration_str = f"{total_hours}h {total_minutes}min" if total_hours else f"{total_minutes} min"
-    else:
-        duration_str = "Durée inconnue"
-
+    duration = timestamps[-1] - timestamps[0]
+    total_minutes = int(duration.total_seconds() // 60)
+    total_hours = total_minutes // 60
+    total_minutes = total_minutes % 60
+    duration_str = f"{total_hours}h {total_minutes}min" if total_hours else f"{total_minutes} min"
 
     metrics = {
         "Cadence": [row["cadence"] for row in rows],
@@ -48,7 +25,6 @@ def generate_activity_plot(activity_id: str):
         "Température (°C)": [row["temperature"] for row in rows],
     }
 
-    # Supprimer les métriques sans aucune valeur
     filtered_metrics = {
         label: values for label, values in metrics.items()
         if any(v is not None for v in values)
