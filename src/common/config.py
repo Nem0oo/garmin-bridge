@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
 
-API_KEY = os.getenv("GARMIN_API_KEY", "XXXXXXXXXXXXXXXXX")
+API_KEY = os.getenv("GARMIN_API_KEY")
+if not API_KEY:
+    raise ValueError("GARMIN_API_KEY environment variable is required")
 GARMIN_DB = os.getenv("GARMIN_DB_PATH", "./garmin.db")
 GARMIN_ACTIVITIES = os.getenv("GARMIN_ACTIVITIES_DB_PATH", "./garmin_activities.db")
 LOCK_FILE = Path("/tmp/sync.lock")

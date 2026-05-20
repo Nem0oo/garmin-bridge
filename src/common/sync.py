@@ -42,14 +42,15 @@ def trigger_sync() -> dict:
     sinon {"already_running": False} après avoir démarré le thread.
     Lève une exception en cas d'erreur d'initialisation.
     """
-    if LOCK_FILE.exists():
+    try:
+        LOCK_FILE.open('x').close()
+    except FileExistsError:
         return {"already_running": True}
 
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         log_path = f"/tmp/garmindb_sync_{timestamp}.log"
 
-        LOCK_FILE.touch()
         STATUS_FILE.write_text(json.dumps({"status": "running", "started_at": timestamp}))
 
         thread = threading.Thread(

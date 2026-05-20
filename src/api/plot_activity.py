@@ -54,42 +54,43 @@ def generate_activity_plot(activity_id: str):
         if any(v is not None for v in values)
     }
 
-    plt.figure(figsize=(15, 8))
-    for label, values in filtered_metrics.items():
-        plt.plot(timestamps, values, label=label)
+    fig = plt.figure(figsize=(15, 8))
+    try:
+        for label, values in filtered_metrics.items():
+            plt.plot(timestamps, values, label=label)
 
-    plt.xlabel("Temps")
-    plt.ylabel("Valeurs")
-    plt.title(f"Activité {activity_id} - Détails")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
+        plt.xlabel("Temps")
+        plt.ylabel("Valeurs")
+        plt.title(f"Activité {activity_id} - Détails")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
 
-    ax = plt.gca()
-    ax.axhspan(104, 145, facecolor='green', alpha=0.1, label='Zone 1')
-    ax.axhspan(145, 166, facecolor='yellow', alpha=0.1, label='Zone 2')
-    ax.axhspan(166, 181, facecolor='orange', alpha=0.1, label='Zone 3')
-    ax.axhspan(181, 194, facecolor='red', alpha=0.1, label='Zone 4')
-    ax.axhspan(194, 210, facecolor='purple', alpha=0.1, label='Zone 5')
+        ax = plt.gca()
+        ax.axhspan(104, 145, facecolor='green', alpha=0.1, label='Zone 1')
+        ax.axhspan(145, 166, facecolor='yellow', alpha=0.1, label='Zone 2')
+        ax.axhspan(166, 181, facecolor='orange', alpha=0.1, label='Zone 3')
+        ax.axhspan(181, 194, facecolor='red', alpha=0.1, label='Zone 4')
+        ax.axhspan(194, 210, facecolor='purple', alpha=0.1, label='Zone 5')
 
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(5))  # tick tous les 5 (0, 5, 10, 15, etc.)
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(5))
 
-    distance_values = [row["distance"] for row in rows if row["distance"] is not None]
-    total_distance_km = distance_values[-1] if distance_values else 0
-    plt.annotate(
-        f"{total_distance_km:.2f} km en {duration_str}",
-        xy=(1.0, 1.02),
-        xycoords='axes fraction',
-        fontsize=10,
-        ha='right',
-        va='bottom',
-        bbox=dict(boxstyle="round,pad=0.3", fc="lightyellow", ec="gray", lw=1)
-    )
+        distance_values = [row["distance"] for row in rows if row["distance"] is not None]
+        total_distance_km = distance_values[-1] if distance_values else 0
+        plt.annotate(
+            f"{total_distance_km:.2f} km en {duration_str}",
+            xy=(1.0, 1.02),
+            xycoords='axes fraction',
+            fontsize=10,
+            ha='right',
+            va='bottom',
+            bbox=dict(boxstyle="round,pad=0.3", fc="lightyellow", ec="gray", lw=1)
+        )
 
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png")
-    plt.close()
-    buf.seek(0)
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+    finally:
+        plt.close(fig)
 
     return StreamingResponse(buf, media_type="image/png")

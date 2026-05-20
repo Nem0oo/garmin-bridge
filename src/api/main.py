@@ -98,29 +98,33 @@ def sleepdetails(days: int = Query(7, ge=1, le=90), _: str = Depends(verify_api_
 def plot_activity(activity_id: str = FPath(..., description="ID de l'activité Garmin"), _: str = Depends(verify_api_key)):
     try:
         return generate_activity_plot(activity_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/activities/{activity_id}/json")
 def activity_json(activity_id: str = FPath(..., description="ID de l'activité Garmin"), _: str = Depends(verify_api_key)):
     try:
         return generate_activity_json(activity_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/last_activity")
 def last_activity(_: str = Depends(verify_api_key)):
     try:
         return get_last_activity_id()
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/last_activity_name/{activity_id}")
 def last_activity_name(activity_id: str = FPath(..., description="ID de l'activité Garmin"), _: str = Depends(verify_api_key)):
     try:
         return get_activity_name(activity_id)
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
 def health():

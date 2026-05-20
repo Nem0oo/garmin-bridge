@@ -26,16 +26,12 @@ def generate_activity_json(activity_id: str):
 
     timestamps = [datetime.fromisoformat(row["timestamp"]) for row in rows]
 
-    if timestamps:
-        duration = timestamps[-1] - timestamps[0]
-        total_seconds = int(duration.total_seconds())
-        total_minutes = total_seconds // 60
-        total_hours = total_minutes // 60
-        remaining_minutes = total_minutes % 60
-        duration_str = f"{total_hours}h {remaining_minutes}min" if total_hours else f"{remaining_minutes} min"
-    else:
-        total_seconds = None
-        duration_str = "Durée inconnue"
+    duration = timestamps[-1] - timestamps[0]
+    total_seconds = int(duration.total_seconds())
+    total_minutes = total_seconds // 60
+    total_hours = total_minutes // 60
+    remaining_minutes = total_minutes % 60
+    duration_str = f"{total_hours}h {remaining_minutes}min" if total_hours else f"{remaining_minutes} min"
 
     distance_values = [row["distance"] for row in rows if row["distance"] is not None]
     total_distance_km = round(distance_values[-1], 2) if distance_values else 0

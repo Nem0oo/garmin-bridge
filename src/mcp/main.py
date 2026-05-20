@@ -20,6 +20,8 @@ def get_last_activity_details() -> dict:
     """
     last_run = get_last_activity_id()
     activity_id = last_run["activity_id"]
+    if activity_id is None:
+        return {"error": "No activity found in database"}
     result = generate_activity_json(activity_id)
     return result
 
