@@ -6,7 +6,7 @@ import json
 from .plot_activity import generate_activity_plot
 from common.json_activity import generate_activity_json
 from common.security import verify_api_key
-from common.config import LOCK_FILE, STATUS_FILE
+from common.config import LOCK_FILE, STATUS_FILE, DOMAIN
 from common.garmin_function import get_daily_metrics, get_activity_summary, get_sleep_details, get_last_activity_id, get_activity_name
 from common.sync import trigger_sync
 
@@ -24,31 +24,31 @@ def available_endpoints(_: str = Depends(verify_api_key)):
     return JSONResponse([
         {
             "name": "Dailymetrics",
-            "url": "https://garmin.gcourtot.fr/dailymetrics",
+            "url": "https://" + DOMAIN + "/dailymetrics",
             "param": "days",
             "default": "7"
         },
         {
             "name": "Activity Summary",
-            "url": "https://garmin.gcourtot.fr/activitysummary",
+            "url": "https://" + DOMAIN + "/activitysummary",
             "param": "days",
             "default": "30"
         },
         {
             "name": "Sleep Details",
-            "url": "https://garmin.gcourtot.fr/sleepdetails",
+            "url": "https://" + DOMAIN + "/sleepdetails",
             "param": "days",
             "default": "7"
         },
         {
             "name": "Sync",
-            "url": "https://garmin.gcourtot.fr/sync",
+            "url": "https://" + DOMAIN + "/sync",
             "param": "",
             "default": ""
         },
         {
             "name": "Sync status",
-            "url": "https://garmin.gcourtot.fr/status",
+            "url": "https://" + DOMAIN + "/status",
             "param": "",
             "default": ""
         }

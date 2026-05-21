@@ -9,3 +9,4 @@ GARMIN_ACTIVITIES = os.getenv("GARMIN_ACTIVITIES_DB_PATH", "./garmin_activities.
 LOCK_FILE = Path("/tmp/sync.lock")
 STATUS_FILE = Path("/tmp/sync.status.json")
 GARMIN_SUMMARY_DB = os.getenv("GARMIN_SUMMARY_DB_PATH", "./garmin_summary.db")
+DOMAIN = os.getenv("LETSENCRYPT_HOST")
