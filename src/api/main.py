@@ -54,7 +54,7 @@ def available_endpoints(_: str = Depends(verify_api_key)):
         }
     ])
 
-@app.post("/sync")
+@app.get("/sync")
 def sync_data(_: str = Depends(verify_api_key)):
     try:
         result = trigger_sync()
