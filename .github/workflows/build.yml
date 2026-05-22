@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build_and_push_to_docker_hub:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout with submodules
@@ -38,3 +38,12 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  trigger_watchtower:
+    if: github.event_name == 'push'
+    needs: build_and_push_to_docker_hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy via n8n
+        run: |
+          curl -H "Content-Type: application/json" "https://n8n.gcourtot.fr/webhook/${{ secrets.N8N_WEBHOOK_ID }}"
