@@ -8,7 +8,7 @@ from common.json_activity import generate_activity_json
 from common.security import verify_api_key
 from common.config import LOCK_FILE, STATUS_FILE, DOMAIN
 from common.garmin_function import get_daily_metrics, get_activity_summary, get_sleep_details, get_last_activity_id, get_activity_name
-from common.sync import trigger_sync
+from common.sync import trigger_sync, read_sync_status
 
 app = FastAPI()
 
@@ -67,17 +67,7 @@ def sync_data(_: str = Depends(verify_api_key)):
 
 @app.get("/status")
 def get_sync_status(_: str = Depends(verify_api_key)):
-    if LOCK_FILE.exists():
-        return {"status": "running"}
-
-    if STATUS_FILE.exists():
-        try:
-            return json.loads(STATUS_FILE.read_text())
-        except Exception as e:
-            print(e)
-            return {"status": "unknown", "error": "Impossible de lire le fichier de statut"}
-
-    return {"status": "idle"}
+    return read_sync_status()
 
 @app.get("/dailymetrics")
 def dailymetrics(days: int = Query(7, ge=1, le=90), _: str = Depends(verify_api_key)):

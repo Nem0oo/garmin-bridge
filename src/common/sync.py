@@ -69,3 +69,16 @@ def trigger_sync() -> dict:
         }))
         LOCK_FILE.unlink(missing_ok=True)
         raise
+
+def read_sync_status():
+    if LOCK_FILE.exists():
+        return {"status": "running"}
+
+    if STATUS_FILE.exists():
+        try:
+            return json.loads(STATUS_FILE.read_text())
+        except Exception as e:
+            print(e)
+            return {"status": "unknown", "error": "Impossible de lire le fichier de statut"}
+
+    return {"status": "idle"}
