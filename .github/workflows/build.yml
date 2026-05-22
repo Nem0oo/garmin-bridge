@@ -24,7 +24,7 @@ jobs:
       - name: Tag previous
         run: |
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:latest && \
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:latest ${{ secrets.DOCKERHUB_USERNAME }}/mon-site-hugo:previous && \
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:latest ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:previous && \
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:previous || true
 
       - name: Set up Docker Buildx
@@ -34,7 +34,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
