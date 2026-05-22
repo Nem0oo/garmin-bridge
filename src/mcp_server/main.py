@@ -55,6 +55,15 @@ def get_last_activity_details() -> dict:
     """
     last_run = get_last_activity_id()
     activity_id = last_run["activity_id"]
+    return get_activity_details(activity_id)
+
+@mcp.tool()
+def get_activity_details(activity_id : int) -> dict:
+    """
+    Return details from the last activity recorded in json.
+    No args
+    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature
+    """
     if activity_id is None:
         return {"error": "No activity found in database"}
     result = generate_activity_json(activity_id)
