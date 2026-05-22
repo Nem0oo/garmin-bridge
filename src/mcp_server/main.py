@@ -1,6 +1,6 @@
 import os
 from mcp.server.fastmcp import FastMCP
-from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics
+from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary
 from common.json_activity import generate_activity_json
 from mcp.server.fastmcp.server import TransportSecuritySettings
 from common.config import DOMAIN, API_KEY
@@ -59,6 +59,19 @@ def get_last_activity_details() -> dict:
         return {"error": "No activity found in database"}
     result = generate_activity_json(activity_id)
     return result
+
+@mcp.tool()
+def get_last_n_activities_summary(days : int = 10) -> list:
+    """
+    Return activity summarys from the last n days in json.
+    Args:
+        days: Number of days to retrieve (default: 10)
+    Returns:
+        list of activities containing activity_id, name, type, start_time, elapsed_time,
+        distance, calories, avg_hr, max_hr, ascent, training_effect,
+        anaerobic_training_effect,self_eval_feel, self_eval_effort
+    """
+    return get_activity_summary(days)
 
 @mcp.tool()
 def get_daily_metrics(days : int = 2) -> dict:
