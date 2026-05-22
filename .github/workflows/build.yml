@@ -35,5 +35,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:latest          cache-from: type=gha
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/garmin-bridge:latest
+          cache-from: type=gha
           cache-to: type=gha,mode=max
