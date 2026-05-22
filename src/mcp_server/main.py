@@ -60,8 +60,9 @@ def get_last_activity_details() -> dict:
 @mcp.tool()
 def get_activity_details(activity_id : int) -> dict:
     """
-    Return details from the last activity recorded in json.
-    No args
+    Return details from the activity identified by the activity id.
+    Args:
+        activity_id: the activity id of the activity to retrieve
     Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature
     """
     if activity_id is None:
