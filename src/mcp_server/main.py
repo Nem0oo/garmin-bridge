@@ -4,6 +4,7 @@ from common.garmin_function import get_last_activity_id, get_daily_metrics as fe
 from common.json_activity import generate_activity_json
 from mcp.server.fastmcp.server import TransportSecuritySettings
 from common.config import DOMAIN, API_KEY
+from common.sync import trigger_sync
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
@@ -25,8 +26,17 @@ app.add_middleware(ApiKeyMiddleware)
 
 @mcp.tool()
 def status() -> str:
-    """Test le mcp"""
+    """Test the MCP server"""
     return "Server is up and running !"
+
+@mcp.tool()
+def synchronisation() -> str:
+    """
+    Trigger fetching garmin data
+    Returns {"already_running": False} when launched succesfully
+    Returns {"already_running": True} when the sync is already running
+    """
+    return trigger_sync()
 
 @mcp.tool()
 def get_last_activity_details() -> dict:
