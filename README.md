@@ -2,7 +2,6 @@
 
 A self-hosted bridge that syncs Garmin Connect health data locally and exposes it via a REST API and an MCP server.
 
-
 ## Why
 
 In 2025 I started running again, just for fun at first (yeah I know, fun is relative). Then I stumbled on a news about a marathon taking place in august and I thought it could be a good thing to fix an objective to my new hobbie. I had no knoledge at all about performance in running so I naturally turned to an AI to coach me. I gave it feedback by sending it screenshots of my Garmin acount. After looking around I found[GarminDB](https://github.com/tcgoetz/GarminDB) and working around it I came up with an API. And recently I added an MCP server, so no more screenshot.
@@ -54,6 +53,39 @@ docker run \
   -p 8000:8000 -p 8001:8001 \
   garmin-bridge
 ```
+
+## Docker-compose example
+
+```yml
+services:
+  garmin-bridge:
+    image: garmin-bridge
+    container_name: garmin-bridge
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    environment: 
+      - TZ=REPLACE_WITH_YOUR_TIME_ZONE
+      - GARMIN_DB_PATH=/app/data/garmin.db
+      - GARMIN_SUMMARY_DB_PATH=/app/data/garmin_summary.db
+      - GARMIN_ACTIVITIES_DB_PATH=/app/data/garmin_activities.db
+      - GARMIN_API_KEY=REPLACE_WITH_API_KEY
+
+    volumes:
+      - ./garmindb_conf:/root/.GarminDb:rw
+      - ./garmindb_data:/root/HealthData:rw
+      - ./garmindb_data/DBs/garmin.db:/app/data/garmin.db:rw
+      - ./garmindb_data/DBs/garmin_summary.db:/app/data/garmin_summary.db:rw
+      - ./garmindb_data/DBs/garmin_activities.db:/app/data/garmin_activities.db:rw
+      
+    restart: unless-stopped
+```
+
+
+### Required GarminDB configuration
+Please refer to [GarminDB instructions](https://github.com/tcgoetz/GarminDB#using-it) but basically : 
+
+Mount [GarminConnectConfig.json.example](https://raw.githubusercontent.com/tcgoetz/GarminDB/master/garmindb/GarminConnectConfig.json.example) to ~/.GarminDb/GarminConnectConfig.json, edit it, and add your Garmin Connect username and password and adjust the start dates to match the dates of your data in Garmin Connect.
 
 ### Required environment variables
 
