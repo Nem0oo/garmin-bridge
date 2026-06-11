@@ -1,6 +1,6 @@
 import bisect
 from datetime import datetime, timedelta
-from .config import GARMIN_DB, GARMIN_ACTIVITIES, GARMIN_SUMMARY_DB
+from .config import GARMIN_DB, GARMIN_ACTIVITIES, GARMIN_SUMMARY_DB, GARMIN_MONITORING_DB
 from .connection_helper import db_connection
 from .tools import time_to_hours, time_to_minutes
 
@@ -175,3 +175,30 @@ def get_daily_metrics(n_days=7):
         })
 
     return results
+
+def get_hrv_status(n_days=7):
+    start_date = (datetime.now() - timedelta(days=n_days)).strftime("%Y-%m-%d")
+
+    query = """
+    SELECT timestamp, weekly_average, last_night, last_night_average,
+           baseline_low, baseline_high, status, reading_count
+    FROM monitoring_hrv_status
+    WHERE DATE(timestamp) >= ?
+    ORDER BY timestamp DESC
+    """
+    with db_connection(GARMIN_MONITORING_DB) as conn:
+        rows = conn.execute(query, (start_date,)).fetchall()
+
+    return [
+        {
+            "timestamp": row["timestamp"],
+            "weekly_average_ms": row["weekly_average"],
+            "last_night_ms": row["last_night"],
+            "last_night_average_ms": row["last_night_average"],
+            "baseline_low_ms": row["baseline_low"],
+            "baseline_high_ms": row["baseline_high"],
+            "status_raw": row["status"],
+            "reading_count": row["reading_count"],
+        }
+        for row in rows
+    ]
