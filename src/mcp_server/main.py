@@ -91,6 +91,14 @@ def get_daily_metrics(days : int = 2) -> dict:
     """
     return fetch_daily_metrics(days)
 
+@mcp.tool()
+def get_sleep_data(days : int = 2) -> dict:
+    """
+    Args : days is the number of nights to be returned. default is 2
+    Returns a dict containing details from sleep metrics
+    """
+    return fetch_daily_metrics(days)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
