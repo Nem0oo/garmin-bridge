@@ -1,6 +1,6 @@
 import os
 from mcp.server.fastmcp import FastMCP
-from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary, get_sleep_details
+from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary, get_sleep_details, get_hrv_status as fetch_hrv_status
 from common.json_activity import generate_activity_json
 from mcp.server.fastmcp.server import TransportSecuritySettings
 from common.config import DOMAIN, API_KEY
@@ -90,6 +90,18 @@ def get_daily_metrics(days : int = 2) -> dict:
     Returns a dict containing details from day to day metrics, such as weight, sleep data, stress level, steps, calories...
     """
     return fetch_daily_metrics(days)
+
+@mcp.tool()
+def get_hrv_status(days: int = 7) -> list:
+    """
+    Returns HRV (Heart Rate Variability) status from the monitoring database.
+    Args:
+        days: Number of days to retrieve (default: 7)
+    Returns:
+        list of HRV status entries containing timestamp, weekly_average_ms, last_night_ms,
+        last_night_average_ms, baseline_low_ms, baseline_high_ms, status_raw, reading_count
+    """
+    return fetch_hrv_status(days)
 
 @mcp.tool()
 def get_sleep_data(days : int = 2) -> dict:
