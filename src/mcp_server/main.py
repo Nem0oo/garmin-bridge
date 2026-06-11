@@ -1,6 +1,6 @@
 import os
 from mcp.server.fastmcp import FastMCP
-from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary
+from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary, get_sleep_details
 from common.json_activity import generate_activity_json
 from mcp.server.fastmcp.server import TransportSecuritySettings
 from common.config import DOMAIN, API_KEY
@@ -97,7 +97,7 @@ def get_sleep_data(days : int = 2) -> dict:
     Args : days is the number of nights to be returned. default is 2
     Returns a dict containing details from sleep metrics
     """
-    return fetch_daily_metrics(days)
+    return get_sleep_details(days)
 
 if __name__ == "__main__":
     import uvicorn
