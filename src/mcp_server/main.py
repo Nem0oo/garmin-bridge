@@ -3,7 +3,7 @@ from mcp.server.fastmcp import FastMCP
 from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary, get_sleep_details, get_hrv_status as fetch_hrv_status
 from common.json_activity import generate_activity_json
 from mcp.server.fastmcp.server import TransportSecuritySettings
-from common.config import DOMAIN, API_KEY
+from common.config import DOMAIN, API_KEY, GARMIN_TOKEN_STORE
 from common.sync import trigger_sync, read_sync_status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
@@ -110,6 +110,47 @@ def get_sleep_data(days : int = 2) -> dict:
     Returns a dict containing details from sleep metrics
     """
     return get_sleep_details(days)
+
+@mcp.tool()
+def push_simple_workout(date: str, name: str, allure_min_par_km: float, duree_minutes: int) -> dict:
+    """
+    Push a simple constant-pace running workout to Garmin Connect and schedule it on the given date.
+    Args:
+        date: Target date in YYYY-MM-DD format (e.g., "2026-06-27")
+        name: Workout name displayed on the watch
+        allure_min_par_km: Target pace in decimal minutes per km (e.g., 5.5 for 5:30/km)
+        duree_minutes: Total duration in minutes
+    Returns:
+        dict with workout_id, date, and scheduled status
+    """
+    from garminconnect import Garmin, RunningWorkout, create_interval_step
+
+    client = Garmin()
+    client.login(os.path.expanduser(GARMIN_TOKEN_STORE))
+
+    duration_seconds = duree_minutes * 60
+    # Garmin pace zone targets are in seconds per kilometer
+    pace_sec_per_km = allure_min_par_km * 60
+
+    step = create_interval_step(
+        step_order=1,
+        end_condition="time",
+        end_condition_value=duration_seconds,
+        target_type="pace.zone",
+        target_value_low=round(pace_sec_per_km * 0.9),   # 10% faster bound
+        target_value_high=round(pace_sec_per_km * 1.1),  # 10% slower bound
+    )
+
+    workout = RunningWorkout(workout_name=name, steps=[step])
+    result = client.upload_running_workout(workout.get_workout())
+
+    workout_id = result.get("workoutId") or result.get("detailId")
+    if not workout_id:
+        return {"error": "Upload succeeded but no workout_id in response", "response": result}
+
+    client.schedule_workout(workout_id, date)
+    return {"workout_id": workout_id, "date": date, "scheduled": True}
+
 
 if __name__ == "__main__":
     import uvicorn

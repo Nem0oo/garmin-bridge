@@ -15,7 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends coreutils libfa
 WORKDIR /app
 
 COPY --from=wheel-builder /dist/*.whl /tmp/
-RUN pip install --no-cache-dir fastapi uvicorn matplotlib mcp /tmp/*.whl && rm /tmp/*.whl
+RUN pip install --no-cache-dir fastapi uvicorn matplotlib mcp /tmp/*.whl && rm /tmp/*.whl && \
+    pip install --no-cache-dir "garminconnect[workout]"
 
 COPY src /app
 
