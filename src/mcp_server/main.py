@@ -156,7 +156,7 @@ def push_simple_workout(date: str, name: str, allure_min_par_km: float, duree_mi
         workoutSegments=[segment],
     )
 
-    result = client.upload_running_workout(workout.to_dict())
+    result = client.upload_running_workout(workout)
 
     workout_id = result.get("workoutId") or result.get("detailId")
     if not workout_id:
