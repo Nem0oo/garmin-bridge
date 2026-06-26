@@ -154,8 +154,8 @@ class TargetNone(BaseModel):
 
 class TargetPace(BaseModel):
     type: Literal["pace_zone"]
-    allure_rapide: float = Field(description="Borne rapide en min/km (ex: 5.0 pour 5:00/km).")
-    allure_lente: float = Field(description="Borne lente en min/km (ex: 5.5 pour 5:30/km).")
+    allure_rapide_min_par_km: float = Field(description="Borne rapide en minutes décimales par km. Ex: 4.5 = 4:30/km.")
+    allure_lente_min_par_km: float = Field(description="Borne lente en minutes décimales par km. Ex: 5.0 = 5:00/km.")
 
 class TargetHeartRate(BaseModel):
     type: Literal["heart_rate_zone"]
@@ -212,7 +212,7 @@ def _target_fields(target: Target) -> tuple[dict, float | None, float | None]:
     tid, tkey = _TARGET_TYPE[target.type]
     target_type = {"workoutTargetTypeId": tid, "workoutTargetTypeKey": tkey, "displayOrder": tid}
     range_map = {
-        "pace_zone":       lambda t: (round(t.allure_rapide * 60, 1), round(t.allure_lente * 60, 1)),
+        "pace_zone":       lambda t: (t.allure_rapide_min_par_km, t.allure_lente_min_par_km),  # TODO: convertir selon unité Garmin confirmée
         "heart_rate_zone": lambda t: (float(t.bpm_min), float(t.bpm_max)),
         "cadence":         lambda t: (float(t.spm_min), float(t.spm_max)),
         "power_zone":      lambda t: (float(t.watts_min), float(t.watts_max)),
@@ -317,7 +317,7 @@ def _estimated_seconds(s: SimpleStep) -> int:
     if ec.type == "fixed_rest":
         return int(ec.duree_minutes * 60)
     if ec.type == "distance" and isinstance(s.target, TargetPace):
-        allure_moy = (s.target.allure_rapide + s.target.allure_lente) / 2
+        allure_moy = (s.target.allure_rapide_min_par_km + s.target.allure_lente_min_par_km) / 2
         return int(ec.distance_km * allure_moy * 60)
     return 0
 
