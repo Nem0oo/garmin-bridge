@@ -1,4 +1,6 @@
 import os
+from typing import Annotated, Literal, Union
+from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
 from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary, get_sleep_details, get_hrv_status as fetch_hrv_status
 from common.json_activity import generate_activity_json
@@ -111,48 +113,275 @@ def get_sleep_data(days : int = 2) -> dict:
     """
     return get_sleep_details(days)
 
+_STEP_TYPE = {
+    "warmup":   {"stepTypeId": 1, "stepTypeKey": "warmup",   "displayOrder": 1},
+    "cooldown": {"stepTypeId": 2, "stepTypeKey": "cooldown", "displayOrder": 2},
+    "interval": {"stepTypeId": 3, "stepTypeKey": "interval", "displayOrder": 3},
+    "recovery": {"stepTypeId": 4, "stepTypeKey": "recovery", "displayOrder": 4},
+}
+
+# (conditionTypeId, conditionTypeKey) — from garminconnect.workout.ConditionType
+_CONDITION_TYPE = {
+    "lap_button":        (1,  "lap.button"),
+    "time":              (2,  "time"),
+    "distance":          (3,  "distance"),
+    "calories":          (4,  "calories"),
+    "power":             (5,  "power"),
+    "heart_rate":        (6,  "heart.rate"),
+    "iterations":        (7,  "iterations"),
+    "fixed_rest":        (8,  "fixed.rest"),
+    "fixed_repetition":  (9,  "fixed.repetition"),
+    "reps":              (10, "reps"),
+}
+
+# ── Target types ──────────────────────────────────────────────────────────────
+
+_TARGET_TYPE = {
+    "no_target":      (1,  "no.target"),
+    "power_zone":     (2,  "power_zone"),
+    "cadence":        (3,  "cadence"),
+    "heart_rate_zone":(4,  "heart_rate_zone"),
+    "speed_zone":     (5,  "speed_zone"),
+    "pace_zone":      (6,  "pace_zone"),
+    "grade":          (7,  "grade"),
+    "heart_rate_lap": (8,  "heart_rate_lap"),
+    "power_lap":      (9,  "power_lap"),
+    "resistance":     (15, "resistance"),
+}
+
+class TargetNone(BaseModel):
+    type: Literal["no_target"]
+
+class TargetPace(BaseModel):
+    type: Literal["pace_zone"]
+    allure_rapide: float = Field(description="Borne rapide en min/km (ex: 5.0 pour 5:00/km).")
+    allure_lente: float = Field(description="Borne lente en min/km (ex: 5.5 pour 5:30/km).")
+
+class TargetHeartRate(BaseModel):
+    type: Literal["heart_rate_zone"]
+    bpm_min: int
+    bpm_max: int
+
+class TargetCadence(BaseModel):
+    type: Literal["cadence"]
+    spm_min: int = Field(description="Cadence minimale en pas par minute.")
+    spm_max: int = Field(description="Cadence maximale en pas par minute.")
+
+class TargetPower(BaseModel):
+    type: Literal["power_zone"]
+    watts_min: int
+    watts_max: int
+
+class TargetSpeed(BaseModel):
+    type: Literal["speed_zone"]
+    kmh_min: float
+    kmh_max: float
+
+class TargetGrade(BaseModel):
+    type: Literal["grade"]
+    grade_min: float = Field(description="Pente minimale en %.")
+    grade_max: float = Field(description="Pente maximale en %.")
+
+class TargetHeartRateLap(BaseModel):
+    type: Literal["heart_rate_lap"]
+    bpm_min: int
+    bpm_max: int
+
+class TargetPowerLap(BaseModel):
+    type: Literal["power_lap"]
+    watts_min: int
+    watts_max: int
+
+class TargetResistance(BaseModel):
+    type: Literal["resistance"]
+    resistance_min: float
+    resistance_max: float
+
+Target = Annotated[
+    Union[
+        TargetNone, TargetPace, TargetHeartRate, TargetCadence, TargetPower,
+        TargetSpeed, TargetGrade, TargetHeartRateLap, TargetPowerLap, TargetResistance,
+    ],
+    Field(discriminator="type")
+]
+
+
+def _target_dict(target: Target) -> dict:
+    tid, tkey = _TARGET_TYPE[target.type]
+    base = {"workoutTargetTypeId": tid, "workoutTargetTypeKey": tkey, "displayOrder": tid}
+    range_map = {
+        "pace_zone":       lambda t: (round(t.allure_rapide * 60), round(t.allure_lente * 60)),
+        "heart_rate_zone": lambda t: (t.bpm_min, t.bpm_max),
+        "cadence":         lambda t: (t.spm_min, t.spm_max),
+        "power_zone":      lambda t: (t.watts_min, t.watts_max),
+        "speed_zone":      lambda t: (t.kmh_min, t.kmh_max),
+        "grade":           lambda t: (t.grade_min, t.grade_max),
+        "heart_rate_lap":  lambda t: (t.bpm_min, t.bpm_max),
+        "power_lap":       lambda t: (t.watts_min, t.watts_max),
+        "resistance":      lambda t: (t.resistance_min, t.resistance_max),
+    }
+    if target.type in range_map:
+        v1, v2 = range_map[target.type](target)
+        base["targetValueOne"] = v1
+        base["targetValueTwo"] = v2
+    return base
+
+
+# ── End condition types ───────────────────────────────────────────────────────
+
+class EndConditionTime(BaseModel):
+    type: Literal["time"]
+    duree_minutes: float
+
+class EndConditionDistance(BaseModel):
+    type: Literal["distance"]
+    distance_km: float
+
+class EndConditionCalories(BaseModel):
+    type: Literal["calories"]
+    calories: int = Field(description="Objectif en kcal.")
+
+class EndConditionPower(BaseModel):
+    type: Literal["power"]
+    watts: int
+
+class EndConditionHeartRate(BaseModel):
+    type: Literal["heart_rate"]
+    bpm: int
+
+class EndConditionLapButton(BaseModel):
+    type: Literal["lap_button"]
+
+class EndConditionIterations(BaseModel):
+    type: Literal["iterations"]
+    count: int
+
+class EndConditionFixedRest(BaseModel):
+    type: Literal["fixed_rest"]
+    duree_minutes: float
+
+class EndConditionFixedRepetition(BaseModel):
+    type: Literal["fixed_repetition"]
+    count: int
+
+class EndConditionReps(BaseModel):
+    type: Literal["reps"]
+    count: int
+
+EndCondition = Annotated[
+    Union[
+        EndConditionTime, EndConditionDistance, EndConditionCalories,
+        EndConditionPower, EndConditionHeartRate, EndConditionLapButton,
+        EndConditionIterations, EndConditionFixedRest, EndConditionFixedRepetition,
+        EndConditionReps,
+    ],
+    Field(discriminator="type")
+]
+
+class SimpleStep(BaseModel):
+    type: Literal["warmup", "interval", "recovery", "cooldown"]
+    end_condition: EndCondition
+    target: Target | None = Field(default=None, description="Objectif du step. Optionnel — omit for no target.")
+
+class RepeatStep(BaseModel):
+    type: Literal["repeat"]
+    repetitions: int
+    steps: list[SimpleStep]
+
+WorkoutStep = Annotated[Union[SimpleStep, RepeatStep], Field(discriminator="type")]
+
+
+def _end_condition_dict(ec: EndCondition) -> tuple[dict, float | None]:
+    cid, ckey = _CONDITION_TYPE[ec.type]
+    base = {"conditionTypeId": cid, "conditionTypeKey": ckey, "displayOrder": cid, "displayable": True}
+    value_map = {
+        "time":             lambda e: e.duree_minutes * 60,
+        "distance":         lambda e: e.distance_km * 1000,
+        "calories":         lambda e: float(e.calories),
+        "power":            lambda e: float(e.watts),
+        "heart_rate":       lambda e: float(e.bpm),
+        "lap_button":       lambda e: None,
+        "iterations":       lambda e: float(e.count),
+        "fixed_rest":       lambda e: e.duree_minutes * 60,
+        "fixed_repetition": lambda e: float(e.count),
+        "reps":             lambda e: float(e.count),
+    }
+    return base, value_map[ec.type](ec)
+
+
+def _estimated_seconds(s: SimpleStep) -> int:
+    ec = s.end_condition
+    if ec.type == "time":
+        return int(ec.duree_minutes * 60)
+    if ec.type == "fixed_rest":
+        return int(ec.duree_minutes * 60)
+    if ec.type == "distance" and isinstance(s.target, TargetPace):
+        allure_moy = (s.target.allure_rapide + s.target.allure_lente) / 2
+        return int(ec.distance_km * allure_moy * 60)
+    return 0
+
+
+def _build_steps(steps: list[WorkoutStep], start_order: int = 1):
+    from garminconnect.workout import ExecutableStep, create_repeat_group
+
+    built = []
+    order = start_order
+    for s in steps:
+        if s.type == "repeat":
+            inner, _ = _build_steps(s.steps, start_order=1)
+            built.append(create_repeat_group(s.repetitions, inner, order))
+        else:
+            end_cond, end_val = _end_condition_dict(s.end_condition)
+            built.append(ExecutableStep(
+                stepOrder=order,
+                stepType=_STEP_TYPE[s.type],
+                endCondition=end_cond,
+                endConditionValue=end_val,
+                targetType=_target_dict(s.target) if s.target else None,
+            ))
+        order += 1
+    return built, order
+
+
+def _total_duration(steps: list[WorkoutStep]) -> int:
+    total = 0
+    for s in steps:
+        if s.type == "repeat":
+            total += _total_duration(s.steps) * s.repetitions
+        else:
+            total += _estimated_seconds(s)
+    return total
+
+
 @mcp.tool()
-def push_simple_workout(date: str, name: str, allure_min_par_km: float, duree_minutes: int) -> dict:
+def push_workout(date: str, name: str, steps: list[WorkoutStep]) -> dict:
     """
-    Push a simple constant-pace running workout to Garmin Connect and schedule it on the given date.
+    Push a structured running workout to Garmin Connect and schedule it.
     Args:
         date: Target date in YYYY-MM-DD format (e.g., "2026-06-27")
         name: Workout name displayed on the watch
-        allure_min_par_km: Target pace in decimal minutes per km (e.g., 5.5 for 5:30/km)
-        duree_minutes: Total duration in minutes
+        steps: Ordered list of workout steps. Use SimpleStep for warmup/interval/recovery/cooldown,
+               and RepeatStep to loop a block of SimpleSteps N times.
     Returns:
         dict with workout_id, date, and scheduled status
     """
     from garminconnect import Garmin
-    from garminconnect.workout import RunningWorkout, WorkoutSegment, create_interval_step
+    from garminconnect.workout import RunningWorkout, WorkoutSegment
 
     client = Garmin()
     client.login(os.path.expanduser(GARMIN_TOKEN_STORE))
 
-    duration_seconds = duree_minutes * 60
-    pace_sec_per_km = allure_min_par_km * 60
-
-    step = create_interval_step(
-        duration_seconds=duration_seconds,
-        step_order=1,
-        target_type={
-            "workoutTargetTypeId": 6,
-            "workoutTargetTypeKey": "pace_zone",
-            "displayOrder": 6,
-            "targetValueOne": round(pace_sec_per_km * 0.9),   # 10% faster bound
-            "targetValueTwo": round(pace_sec_per_km * 1.1),   # 10% slower bound
-        },
-    )
+    workout_steps, _ = _build_steps(steps)
 
     segment = WorkoutSegment(
         segmentOrder=1,
         sportType={"sportTypeId": 1, "sportTypeKey": "running", "displayOrder": 1},
-        workoutSteps=[step],
+        workoutSteps=workout_steps,
     )
 
     workout = RunningWorkout(
         workoutName=name,
-        estimatedDurationInSecs=int(duration_seconds),
+        estimatedDurationInSecs=_total_duration(steps),
         workoutSegments=[segment],
     )
 
