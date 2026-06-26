@@ -210,15 +210,15 @@ def _target_dict(target: Target) -> dict:
     tid, tkey = _TARGET_TYPE[target.type]
     base = {"workoutTargetTypeId": tid, "workoutTargetTypeKey": tkey, "displayOrder": tid}
     range_map = {
-        "pace_zone":       lambda t: (round(t.allure_rapide * 60), round(t.allure_lente * 60)),
-        "heart_rate_zone": lambda t: (t.bpm_min, t.bpm_max),
-        "cadence":         lambda t: (t.spm_min, t.spm_max),
-        "power_zone":      lambda t: (t.watts_min, t.watts_max),
-        "speed_zone":      lambda t: (t.kmh_min, t.kmh_max),
-        "grade":           lambda t: (t.grade_min, t.grade_max),
-        "heart_rate_lap":  lambda t: (t.bpm_min, t.bpm_max),
-        "power_lap":       lambda t: (t.watts_min, t.watts_max),
-        "resistance":      lambda t: (t.resistance_min, t.resistance_max),
+        "pace_zone":       lambda t: (round(t.allure_rapide * 60, 1), round(t.allure_lente * 60, 1)),
+        "heart_rate_zone": lambda t: (float(t.bpm_min), float(t.bpm_max)),
+        "cadence":         lambda t: (float(t.spm_min), float(t.spm_max)),
+        "power_zone":      lambda t: (float(t.watts_min), float(t.watts_max)),
+        "speed_zone":      lambda t: (float(t.kmh_min), float(t.kmh_max)),
+        "grade":           lambda t: (float(t.grade_min), float(t.grade_max)),
+        "heart_rate_lap":  lambda t: (float(t.bpm_min), float(t.bpm_max)),
+        "power_lap":       lambda t: (float(t.watts_min), float(t.watts_max)),
+        "resistance":      lambda t: (float(t.resistance_min), float(t.resistance_max)),
     }
     if target.type in range_map:
         v1, v2 = range_map[target.type](target)
