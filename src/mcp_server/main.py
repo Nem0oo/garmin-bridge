@@ -429,6 +429,38 @@ def get_workout(workout_id: int) -> dict:
 
 
 @mcp.tool()
+def schedule_existing_workout(workout_id: int, date: str) -> dict:
+    """
+    Schedule an existing saved workout on a specific date.
+    Args:
+        workout_id: Workout id as returned by list_workouts
+        date: Target date in YYYY-MM-DD format
+    Returns:
+        dict with workout_id, date and scheduled status
+    """
+    _garmin_client().schedule_workout(workout_id, date)
+    return {"workout_id": workout_id, "date": date, "scheduled": True}
+
+
+@mcp.tool()
+def move_scheduled_workout(scheduled_id: int, new_date: str) -> dict:
+    """
+    Move an already-scheduled workout to a different date.
+    Args:
+        scheduled_id: ID of the calendar entry as returned by get_scheduled_workouts
+        new_date: New date in YYYY-MM-DD format
+    Returns:
+        dict with workout_id, old scheduled_id and new date
+    """
+    client = _garmin_client()
+    scheduled = client.get_scheduled_workout_by_id(scheduled_id)
+    workout_id = scheduled.get("workoutId")
+    client.unschedule_workout(scheduled_id)
+    client.schedule_workout(workout_id, new_date)
+    return {"workout_id": workout_id, "scheduled_id": scheduled_id, "new_date": new_date}
+
+
+@mcp.tool()
 def get_scheduled_workouts(year: int, month: int) -> list:
     """
     Get workouts scheduled on the Garmin Connect calendar for a given month.
