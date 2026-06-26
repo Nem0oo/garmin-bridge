@@ -124,26 +124,39 @@ def push_simple_workout(date: str, name: str, allure_min_par_km: float, duree_mi
         dict with workout_id, date, and scheduled status
     """
     from garminconnect import Garmin
-    from garminconnect.workout import RunningWorkout, create_interval_step
+    from garminconnect.workout import RunningWorkout, WorkoutSegment, create_interval_step
 
     client = Garmin()
     client.login(os.path.expanduser(GARMIN_TOKEN_STORE))
 
     duration_seconds = duree_minutes * 60
-    # Garmin pace zone targets are in seconds per kilometer
     pace_sec_per_km = allure_min_par_km * 60
 
     step = create_interval_step(
+        duration_seconds=duration_seconds,
         step_order=1,
-        end_condition="time",
-        end_condition_value=duration_seconds,
-        target_type="pace.zone",
-        target_value_low=round(pace_sec_per_km * 0.9),   # 10% faster bound
-        target_value_high=round(pace_sec_per_km * 1.1),  # 10% slower bound
+        target_type={
+            "workoutTargetTypeId": 6,
+            "workoutTargetTypeKey": "pace_zone",
+            "displayOrder": 6,
+            "targetValueOne": round(pace_sec_per_km * 0.9),   # 10% faster bound
+            "targetValueTwo": round(pace_sec_per_km * 1.1),   # 10% slower bound
+        },
     )
 
-    workout = RunningWorkout(workout_name=name, steps=[step])
-    result = client.upload_running_workout(workout.get_workout())
+    segment = WorkoutSegment(
+        segmentOrder=1,
+        sportType={"sportTypeId": 1, "sportTypeKey": "running", "displayOrder": 1},
+        workoutSteps=[step],
+    )
+
+    workout = RunningWorkout(
+        workoutName=name,
+        estimatedDurationInSecs=int(duration_seconds),
+        workoutSegments=[segment],
+    )
+
+    result = client.upload_running_workout(workout.to_dict())
 
     workout_id = result.get("workoutId") or result.get("detailId")
     if not workout_id:
