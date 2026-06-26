@@ -369,11 +369,9 @@ def push_workout(date: str, name: str, steps: list[WorkoutStep]) -> dict:
     Returns:
         dict with workout_id, date, and scheduled status
     """
-    from garminconnect import Garmin
     from garminconnect.workout import RunningWorkout, WorkoutSegment
 
-    client = Garmin()
-    client.login(os.path.expanduser(GARMIN_TOKEN_STORE))
+    client = _garmin_client()
 
     workout_steps, _ = _build_steps(steps)
 
@@ -397,6 +395,50 @@ def push_workout(date: str, name: str, steps: list[WorkoutStep]) -> dict:
 
     client.schedule_workout(workout_id, date)
     return {"workout_id": workout_id, "date": date, "scheduled": True}
+
+
+def _garmin_client():
+    from garminconnect import Garmin
+    client = Garmin()
+    client.login(os.path.expanduser(GARMIN_TOKEN_STORE))
+    return client
+
+
+@mcp.tool()
+def list_workouts(limit: int = 50) -> list:
+    """
+    List saved workouts from Garmin Connect.
+    Args:
+        limit: Maximum number of workouts to return (default: 50)
+    Returns:
+        List of workouts with their id, name, sport type and duration
+    """
+    return _garmin_client().get_workouts(0, limit)
+
+
+@mcp.tool()
+def get_workout(workout_id: int) -> dict:
+    """
+    Get the full detail of a saved workout by its id.
+    Args:
+        workout_id: Workout id as returned by list_workouts
+    Returns:
+        Full workout structure including all steps, targets and conditions
+    """
+    return _garmin_client().get_workout_by_id(workout_id)
+
+
+@mcp.tool()
+def get_scheduled_workouts(year: int, month: int) -> list:
+    """
+    Get workouts scheduled on the Garmin Connect calendar for a given month.
+    Args:
+        year: Year (e.g., 2026)
+        month: Month as integer 1-12
+    Returns:
+        List of scheduled workouts with date and workout details
+    """
+    return _garmin_client().get_scheduled_workouts(year, month)
 
 
 if __name__ == "__main__":
