@@ -212,7 +212,7 @@ def _target_fields(target: Target) -> tuple[dict, float | None, float | None]:
     tid, tkey = _TARGET_TYPE[target.type]
     target_type = {"workoutTargetTypeId": tid, "workoutTargetTypeKey": tkey, "displayOrder": tid}
     range_map = {
-        "pace_zone":       lambda t: (t.allure_rapide_min_par_km, t.allure_lente_min_par_km),  # TODO: convertir selon unité Garmin confirmée
+        "pace_zone":       lambda t: (round(1000 / (t.allure_rapide_min_par_km * 60), 4), round(1000 / (t.allure_lente_min_par_km * 60), 4)),
         "heart_rate_zone": lambda t: (float(t.bpm_min), float(t.bpm_max)),
         "cadence":         lambda t: (float(t.spm_min), float(t.spm_max)),
         "power_zone":      lambda t: (float(t.watts_min), float(t.watts_max)),
@@ -317,7 +317,7 @@ def _estimated_seconds(s: SimpleStep) -> int:
     if ec.type == "fixed_rest":
         return int(ec.duree_minutes * 60)
     if ec.type == "distance" and isinstance(s.target, TargetPace):
-        allure_moy = (s.target.allure_rapide_min_par_km + s.target.allure_lente_min_par_km) / 2
+        allure_moy = (s.target.allure_rapide_min_par_km + s.target.allure_lente_min_par_km) / 2  # min/km
         return int(ec.distance_km * allure_moy * 60)
     return 0
 
