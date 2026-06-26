@@ -123,7 +123,8 @@ def push_simple_workout(date: str, name: str, allure_min_par_km: float, duree_mi
     Returns:
         dict with workout_id, date, and scheduled status
     """
-    from garminconnect import Garmin, RunningWorkout, create_interval_step
+    from garminconnect import Garmin
+    from garminconnect.workout import RunningWorkout, create_interval_step
 
     client = Garmin()
     client.login(os.path.expanduser(GARMIN_TOKEN_STORE))
