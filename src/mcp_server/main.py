@@ -206,9 +206,11 @@ Target = Annotated[
 ]
 
 
-def _target_dict(target: Target) -> dict:
+def _target_fields(target: Target) -> tuple[dict, float | None, float | None]:
+    """Returns (targetType dict, targetValueOne, targetValueTwo).
+    Values are extra fields on ExecutableStep, NOT inside targetType."""
     tid, tkey = _TARGET_TYPE[target.type]
-    base = {"workoutTargetTypeId": tid, "workoutTargetTypeKey": tkey, "displayOrder": tid}
+    target_type = {"workoutTargetTypeId": tid, "workoutTargetTypeKey": tkey, "displayOrder": tid}
     range_map = {
         "pace_zone":       lambda t: (round(t.allure_rapide * 60, 1), round(t.allure_lente * 60, 1)),
         "heart_rate_zone": lambda t: (float(t.bpm_min), float(t.bpm_max)),
@@ -222,9 +224,8 @@ def _target_dict(target: Target) -> dict:
     }
     if target.type in range_map:
         v1, v2 = range_map[target.type](target)
-        base["targetValueOne"] = v1
-        base["targetValueTwo"] = v2
-    return base
+        return target_type, v1, v2
+    return target_type, None, None
 
 
 # ── End condition types ───────────────────────────────────────────────────────
@@ -332,12 +333,15 @@ def _build_steps(steps: list[WorkoutStep], start_order: int = 1):
             built.append(create_repeat_group(s.repetitions, inner, order))
         else:
             end_cond, end_val = _end_condition_dict(s.end_condition)
+            target_type, v1, v2 = _target_fields(s.target) if s.target else (None, None, None)
             built.append(ExecutableStep(
                 stepOrder=order,
                 stepType=_STEP_TYPE[s.type],
                 endCondition=end_cond,
                 endConditionValue=end_val,
-                targetType=_target_dict(s.target) if s.target else None,
+                targetType=target_type,
+                targetValueOne=v1,
+                targetValueTwo=v2,
             ))
         order += 1
     return built, order
