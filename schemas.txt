@@ -1,0 +1,1191 @@
+======================================================================
+SCHEMAS DES BASES DE DONNEES GARMIN
+Repertoire : /home/nem0oo/garmin_data
+======================================================================
+
+======================================================================
+BASE : garmin.db  (taille : 63,934,464 octets)
+Tables : 12   Vues : 2
+======================================================================
+
+  TABLE : _attributes
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             False    None            0
+  1    key                                 VARCHAR              True     None            1
+  2    value                               VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex__attributes_1 UNIQUE (key)
+
+  TABLE : attributes
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             False    None            0
+  1    key                                 VARCHAR              True     None            1
+  2    value                               VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex_attributes_1 UNIQUE (key)
+
+  TABLE : daily_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    day                                 DATETIME             True     None            1
+  1    hr_min                              INTEGER              False    None            0
+  2    hr_max                              INTEGER              False    None            0
+  3    rhr                                 INTEGER              False    None            0
+  4    stress_avg                          INTEGER              False    None            0
+  5    step_goal                           INTEGER              False    None            0
+  6    steps                               INTEGER              False    None            0
+  7    moderate_activity_time              TIME                 True     None            0
+  8    vigorous_activity_time              TIME                 True     None            0
+  9    intensity_time_goal                 TIME                 True     None            0
+  10   floors_up                           FLOAT                False    None            0
+  11   floors_down                         FLOAT                False    None            0
+  12   floors_goal                         FLOAT                False    None            0
+  13   distance                            FLOAT                False    None            0
+  14   calories_goal                       INTEGER              False    None            0
+  15   calories_total                      INTEGER              False    None            0
+  16   calories_bmr                        INTEGER              False    None            0
+  17   calories_active                     INTEGER              False    None            0
+  18   calories_consumed                   INTEGER              False    None            0
+  19   hydration_goal                      INTEGER              False    None            0
+  20   hydration_intake                    INTEGER              False    None            0
+  21   sweat_loss                          INTEGER              False    None            0
+  22   spo2_avg                            FLOAT                False    None            0
+  23   spo2_min                            FLOAT                False    None            0
+  24   rr_waking_avg                       FLOAT                False    None            0
+  25   rr_max                              FLOAT                False    None            0
+  26   rr_min                              FLOAT                False    None            0
+  27   bb_charged                          INTEGER              False    None            0
+  28   bb_max                              INTEGER              False    None            0
+  29   bb_min                              INTEGER              False    None            0
+  30   description                         VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex_daily_summary_1 UNIQUE (day)
+
+  TABLE : device_info
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    file_id                             VARCHAR              False    None            0
+  2    serial_number                       INTEGER              True     None            2
+  3    software_version                    VARCHAR              False    None            0
+  4    cum_operating_time                  TIME                 True     None            0
+  5    battery_status                      VARCHAR(8)           False    None            0
+  6    battery_voltage                     FLOAT                False    None            0
+
+  Cles etrangeres :
+    serial_number -> devices.serial_number
+    file_id -> files.id
+
+  Index :
+    sqlite_autoindex_device_info_1 UNIQUE (timestamp, serial_number)
+
+  TABLE : devices
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    serial_number                       INTEGER              True     None            1
+  1    timestamp                           DATETIME             False    None            0
+  2    device_type                         VARCHAR              False    None            0
+  3    manufacturer                        VARCHAR(28)          False    None            0
+  4    product                             VARCHAR              False    None            0
+  5    hardware_version                    VARCHAR              False    None            0
+
+  TABLE : files
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    id                                  VARCHAR              True     None            1
+  1    name                                VARCHAR              False    None            0
+  2    type                                VARCHAR(28)          True     None            0
+  3    serial_number                       INTEGER              False    None            0
+
+  Cles etrangeres :
+    serial_number -> devices.serial_number
+
+  Index :
+    sqlite_autoindex_files_2 UNIQUE (name)
+    sqlite_autoindex_files_1 UNIQUE (id)
+
+  TABLE : hrv
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    day                                 DATETIME             True     None            1
+  1    weekly_avg                          INTEGER              False    None            0
+  2    last_night_avg                      INTEGER              False    None            0
+  3    last_night_5min_high                INTEGER              False    None            0
+  4    baseline_low                        INTEGER              False    None            0
+  5    baseline_upper                      INTEGER              False    None            0
+  6    status                              VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex_hrv_1 UNIQUE (day)
+
+  TABLE : resting_hr
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    day                                 DATETIME             True     None            1
+  1    resting_heart_rate                  FLOAT                False    None            0
+
+  Index :
+    sqlite_autoindex_resting_hr_1 UNIQUE (day)
+
+  TABLE : sleep
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    day                                 DATETIME             True     None            1
+  1    start                               DATETIME             False    None            0
+  2    end                                 DATETIME             False    None            0
+  3    total_sleep                         TIME                 True     None            0
+  4    deep_sleep                          TIME                 True     None            0
+  5    light_sleep                         TIME                 True     None            0
+  6    rem_sleep                           TIME                 True     None            0
+  7    awake                               TIME                 True     None            0
+  8    avg_spo2                            FLOAT                False    None            0
+  9    avg_rr                              FLOAT                False    None            0
+  10   avg_stress                          FLOAT                False    None            0
+  11   score                               INTEGER              False    None            0
+  12   qualifier                           VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex_sleep_1 UNIQUE (day)
+
+  TABLE : sleep_events
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    event                               VARCHAR              False    None            0
+  2    duration                            TIME                 True     None            0
+
+  Index :
+    sqlite_autoindex_sleep_events_1 UNIQUE (timestamp)
+
+  TABLE : stress
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    stress                              INTEGER              True     None            0
+
+  Index :
+    sqlite_autoindex_stress_1 UNIQUE (timestamp)
+
+  TABLE : weight
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    day                                 DATETIME             True     None            1
+  1    weight                              FLOAT                True     None            0
+
+  Index :
+    sqlite_autoindex_weight_1 UNIQUE (day)
+
+  VUES :
+  ------------------------------------------------------------
+  VIEW : device_info_view
+    CREATE VIEW device_info_view AS SELECT device_info.timestamp AS timestamp, device_info.file_id AS file_id, device_info.serial_number AS serial_number, devices.device_type AS device_type, device_info.software_version AS software_version, devices.manufacturer AS manufacturer, devices.product AS product, devices.hardware_version AS hardware_version, device_info.battery_status AS battery_status 
+FROM device_info JOIN devices ON devices.serial_number = device_info.serial_number ORDER BY device_info.timestamp DESC
+
+  VIEW : files_view
+    CREATE VIEW files_view AS SELECT device_info.timestamp AS timestamp, files.id AS activity_id, files.name AS name, files.type AS type, devices.manufacturer AS manufacturer, devices.product AS product, devices.serial_number AS serial_number 
+FROM files JOIN devices ON files.serial_number = devices.serial_number JOIN device_info ON files.id = device_info.file_id ORDER BY device_info.timestamp DESC
+
+
+======================================================================
+BASE : garmin_activities.db  (taille : 196,018,176 octets)
+Tables : 10   Vues : 7
+======================================================================
+
+  TABLE : _attributes
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             False    None            0
+  1    key                                 VARCHAR              True     None            1
+  2    value                               VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex__attributes_1 UNIQUE (key)
+
+  TABLE : activities
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    activity_id                         VARCHAR              True     None            1
+  1    name                                VARCHAR              False    None            0
+  2    description                         VARCHAR              False    None            0
+  3    type                                VARCHAR              False    None            0
+  4    course_id                           INTEGER              False    None            0
+  5    laps                                INTEGER              False    None            0
+  6    sport                               VARCHAR              False    None            0
+  7    sub_sport                           VARCHAR              False    None            0
+  8    device_serial_number                INTEGER              False    None            0
+  9    self_eval_feel                      VARCHAR              False    None            0
+  10   self_eval_effort                    VARCHAR              False    None            0
+  11   training_load                       FLOAT                False    None            0
+  12   training_effect                     FLOAT                False    None            0
+  13   anaerobic_training_effect           FLOAT                False    None            0
+  14   start_time                          DATETIME             False    None            0
+  15   stop_time                           DATETIME             False    None            0
+  16   elapsed_time                        TIME                 True     None            0
+  17   moving_time                         TIME                 True     None            0
+  18   distance                            FLOAT                False    None            0
+  19   cycles                              FLOAT                False    None            0
+  20   avg_hr                              INTEGER              False    None            0
+  21   max_hr                              INTEGER              False    None            0
+  22   avg_rr                              FLOAT                False    None            0
+  23   max_rr                              FLOAT                False    None            0
+  24   calories                            INTEGER              False    None            0
+  25   avg_cadence                         INTEGER              False    None            0
+  26   max_cadence                         INTEGER              False    None            0
+  27   avg_speed                           FLOAT                False    None            0
+  28   max_speed                           FLOAT                False    None            0
+  29   ascent                              FLOAT                False    None            0
+  30   descent                             FLOAT                False    None            0
+  31   max_temperature                     FLOAT                False    None            0
+  32   min_temperature                     FLOAT                False    None            0
+  33   avg_temperature                     FLOAT                False    None            0
+  34   start_lat                           FLOAT                False    None            0
+  35   start_long                          FLOAT                False    None            0
+  36   stop_lat                            FLOAT                False    None            0
+  37   stop_long                           FLOAT                False    None            0
+  38   hr_zones_method                     VARCHAR(18)          False    None            0
+  39   hrz_1_hr                            INTEGER              False    None            0
+  40   hrz_2_hr                            INTEGER              False    None            0
+  41   hrz_3_hr                            INTEGER              False    None            0
+  42   hrz_4_hr                            INTEGER              False    None            0
+  43   hrz_5_hr                            INTEGER              False    None            0
+  44   hrz_1_time                          TIME                 True     None            0
+  45   hrz_2_time                          TIME                 True     None            0
+  46   hrz_3_time                          TIME                 True     None            0
+  47   hrz_4_time                          TIME                 True     None            0
+  48   hrz_5_time                          TIME                 True     None            0
+
+  Index :
+    sqlite_autoindex_activities_1 UNIQUE (activity_id)
+
+  TABLE : activities_devices
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    activity_id                         VARCHAR              True     None            1
+  1    device_serial_number                INTEGER              True     None            2
+
+  Index :
+    sqlite_autoindex_activities_devices_1 UNIQUE (activity_id, device_serial_number)
+
+  TABLE : activity_laps
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    activity_id                         VARCHAR              True     None            1
+  1    lap                                 INTEGER              True     None            2
+  2    start_time                          DATETIME             False    None            0
+  3    stop_time                           DATETIME             False    None            0
+  4    elapsed_time                        TIME                 True     None            0
+  5    moving_time                         TIME                 True     None            0
+  6    distance                            FLOAT                False    None            0
+  7    cycles                              FLOAT                False    None            0
+  8    avg_hr                              INTEGER              False    None            0
+  9    max_hr                              INTEGER              False    None            0
+  10   avg_rr                              FLOAT                False    None            0
+  11   max_rr                              FLOAT                False    None            0
+  12   calories                            INTEGER              False    None            0
+  13   avg_cadence                         INTEGER              False    None            0
+  14   max_cadence                         INTEGER              False    None            0
+  15   avg_speed                           FLOAT                False    None            0
+  16   max_speed                           FLOAT                False    None            0
+  17   ascent                              FLOAT                False    None            0
+  18   descent                             FLOAT                False    None            0
+  19   max_temperature                     FLOAT                False    None            0
+  20   min_temperature                     FLOAT                False    None            0
+  21   avg_temperature                     FLOAT                False    None            0
+  22   start_lat                           FLOAT                False    None            0
+  23   start_long                          FLOAT                False    None            0
+  24   stop_lat                            FLOAT                False    None            0
+  25   stop_long                           FLOAT                False    None            0
+  26   hr_zones_method                     VARCHAR(18)          False    None            0
+  27   hrz_1_hr                            INTEGER              False    None            0
+  28   hrz_2_hr                            INTEGER              False    None            0
+  29   hrz_3_hr                            INTEGER              False    None            0
+  30   hrz_4_hr                            INTEGER              False    None            0
+  31   hrz_5_hr                            INTEGER              False    None            0
+  32   hrz_1_time                          TIME                 True     None            0
+  33   hrz_2_time                          TIME                 True     None            0
+  34   hrz_3_time                          TIME                 True     None            0
+  35   hrz_4_time                          TIME                 True     None            0
+  36   hrz_5_time                          TIME                 True     None            0
+
+  Cles etrangeres :
+    activity_id -> activities.activity_id
+
+  Index :
+    sqlite_autoindex_activity_laps_1 UNIQUE (activity_id, lap)
+
+  TABLE : activity_records
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    activity_id                         VARCHAR              True     None            1
+  1    record                              INTEGER              True     None            2
+  2    timestamp                           DATETIME             False    None            0
+  3    position_lat                        FLOAT                False    None            0
+  4    position_long                       FLOAT                False    None            0
+  5    distance                            FLOAT                False    None            0
+  6    cadence                             INTEGER              False    None            0
+  7    altitude                            FLOAT                False    None            0
+  8    hr                                  INTEGER              False    None            0
+  9    rr                                  FLOAT                False    None            0
+  10   speed                               FLOAT                False    None            0
+  11   temperature                         FLOAT                False    None            0
+
+  Cles etrangeres :
+    activity_id -> activities.activity_id
+
+  Index :
+    sqlite_autoindex_activity_records_1 UNIQUE (activity_id, record)
+
+  TABLE : activity_splits
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    activity_id                         VARCHAR              True     None            1
+  1    split                               INTEGER              True     None            2
+  2    grade                               VARCHAR              False    None            0
+  3    completed                           BOOLEAN              False    None            0
+  4    falls                               INTEGER              False    None            0
+  5    start_time                          DATETIME             False    None            0
+  6    stop_time                           DATETIME             False    None            0
+  7    elapsed_time                        TIME                 True     None            0
+  8    moving_time                         TIME                 True     None            0
+  9    distance                            FLOAT                False    None            0
+  10   cycles                              FLOAT                False    None            0
+  11   avg_hr                              INTEGER              False    None            0
+  12   max_hr                              INTEGER              False    None            0
+  13   avg_rr                              FLOAT                False    None            0
+  14   max_rr                              FLOAT                False    None            0
+  15   calories                            INTEGER              False    None            0
+  16   avg_cadence                         INTEGER              False    None            0
+  17   max_cadence                         INTEGER              False    None            0
+  18   avg_speed                           FLOAT                False    None            0
+  19   max_speed                           FLOAT                False    None            0
+  20   ascent                              FLOAT                False    None            0
+  21   descent                             FLOAT                False    None            0
+  22   max_temperature                     FLOAT                False    None            0
+  23   min_temperature                     FLOAT                False    None            0
+  24   avg_temperature                     FLOAT                False    None            0
+  25   start_lat                           FLOAT                False    None            0
+  26   start_long                          FLOAT                False    None            0
+  27   stop_lat                            FLOAT                False    None            0
+  28   stop_long                           FLOAT                False    None            0
+  29   hr_zones_method                     VARCHAR(18)          False    None            0
+  30   hrz_1_hr                            INTEGER              False    None            0
+  31   hrz_2_hr                            INTEGER              False    None            0
+  32   hrz_3_hr                            INTEGER              False    None            0
+  33   hrz_4_hr                            INTEGER              False    None            0
+  34   hrz_5_hr                            INTEGER              False    None            0
+  35   hrz_1_time                          TIME                 True     None            0
+  36   hrz_2_time                          TIME                 True     None            0
+  37   hrz_3_time                          TIME                 True     None            0
+  38   hrz_4_time                          TIME                 True     None            0
+  39   hrz_5_time                          TIME                 True     None            0
+
+  Cles etrangeres :
+    activity_id -> activities.activity_id
+
+  Index :
+    sqlite_autoindex_activity_splits_1 UNIQUE (activity_id, split)
+
+  TABLE : climbing_activities
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    total_routes                        INTEGER              False    None            0
+  1    activity_id                         VARCHAR              True     None            1
+
+  Cles etrangeres :
+    activity_id -> activities.activity_id
+
+  Index :
+    sqlite_autoindex_climbing_activities_1 UNIQUE (activity_id)
+
+  TABLE : cycle_activities
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    strokes                             INTEGER              False    None            0
+  1    vo2_max                             FLOAT                False    None            0
+  2    activity_id                         VARCHAR              True     None            1
+
+  Cles etrangeres :
+    activity_id -> activities.activity_id
+
+  Index :
+    sqlite_autoindex_cycle_activities_1 UNIQUE (activity_id)
+
+  TABLE : paddle_activities
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    strokes                             INTEGER              False    None            0
+  1    avg_stroke_distance                 FLOAT                False    None            0
+  2    activity_id                         VARCHAR              True     None            1
+
+  Cles etrangeres :
+    activity_id -> activities.activity_id
+
+  Index :
+    sqlite_autoindex_paddle_activities_1 UNIQUE (activity_id)
+
+  TABLE : steps_activities
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    steps                               INTEGER              False    None            0
+  1    avg_pace                            TIME                 True     None            0
+  2    avg_moving_pace                     TIME                 True     None            0
+  3    max_pace                            TIME                 True     None            0
+  4    avg_steps_per_min                   INTEGER              False    None            0
+  5    max_steps_per_min                   INTEGER              False    None            0
+  6    avg_step_length                     FLOAT                False    None            0
+  7    avg_vertical_ratio                  FLOAT                False    None            0
+  8    avg_vertical_oscillation            FLOAT                False    None            0
+  9    avg_gct_balance                     FLOAT                False    None            0
+  10   avg_ground_contact_time             TIME                 True     None            0
+  11   avg_stance_time_percent             FLOAT                False    None            0
+  12   vo2_max                             FLOAT                False    None            0
+  13   activity_id                         VARCHAR              True     None            1
+
+  Cles etrangeres :
+    activity_id -> activities.activity_id
+
+  Index :
+    sqlite_autoindex_steps_activities_1 UNIQUE (activity_id)
+
+  VUES :
+  ------------------------------------------------------------
+  VIEW : climbing_activities_view
+    CREATE VIEW climbing_activities_view AS SELECT activities.activity_id AS activity_id, activities.name AS name, activities.description AS description, activities.sub_sport AS sub_sport, activities.start_time AS start_time, activities.stop_time AS stop_time, activities.elapsed_time AS elapsed_time, activities.moving_time AS moving_time, activities.avg_hr AS avg_hr, activities.max_hr AS max_hr, activities.calories AS calories, activities.ascent AS ascent, activities.descent AS descent, climbing_activities.total_routes AS total_routes, activities.training_effect AS training_effect, activities.anaerobic_training_effect AS anaerobic_training_effect, activities.hrz_1_time AS heart_rate_zone_one_time, activities.hrz_2_time AS heart_rate_zone_two_time, activities.hrz_3_time AS heart_rate_zone_three_time, activities.hrz_4_time AS heart_rate_zone_four_time, activities.hrz_5_time AS heart_rate_zone_five_time 
+FROM climbing_activities JOIN activities ON activities.activity_id = climbing_activities.activity_id ORDER BY activities.start_time DESC
+
+  VIEW : cycle_activities_view
+    CREATE VIEW cycle_activities_view AS SELECT activities.activity_id AS activity_id, activities.name AS name, activities.description AS description, activities.sub_sport AS sub_sport, activities.start_time AS start_time, activities.stop_time AS stop_time, activities.elapsed_time AS elapsed_time, ROUND(activities.distance, 1) AS distance , cycle_activities.strokes AS strokes, activities.avg_hr AS avg_hr, activities.max_hr AS max_hr, activities.avg_rr AS avg_rr, activities.max_rr AS max_rr, activities.calories AS calories, ROUND(activities.avg_temperature, 1) AS avg_temperature , activities.avg_cadence AS avg_rpms, activities.max_cadence AS max_rpms, ROUND(activities.avg_speed, 1) AS avg_speed , ROUND(activities.max_speed, 1) AS max_speed , cycle_activities.vo2_max AS vo2_max, activities.training_effect AS training_effect, activities.anaerobic_training_effect AS anaerobic_training_effect, activities.hrz_1_time AS heart_rate_zone_one_time, activities.hrz_2_time AS heart_rate_zone_two_time, activities.hrz_3_time AS heart_rate_zone_three_time, activities.hrz_4_time AS heart_rate_zone_four_time, activities.hrz_5_time AS heart_rate_zone_five_time, "http://maps.google.com/?ie=UTF8&q=" || activities.start_lat || "," || activities.start_long || "&z=13" AS start_loc, "http://maps.google.com/?ie=UTF8&q=" || activities.stop_lat || "," || activities.stop_long || "&z=13" AS stop_loc 
+FROM cycle_activities JOIN activities ON activities.activity_id = cycle_activities.activity_id ORDER BY activities.start_time DESC
+
+  VIEW : hiking_activities_view
+    CREATE VIEW hiking_activities_view AS SELECT activities.activity_id AS activity_id, activities.name AS name, activities.description AS description, activities.start_time AS start_time, activities.stop_time AS stop_time, activities.elapsed_time AS elapsed_time, ROUND(activities.distance, 1) AS distance , steps_activities.steps AS steps, steps_activities.avg_pace AS avg_pace, steps_activities.avg_moving_pace AS avg_moving_pace, steps_activities.max_pace AS max_pace, ROUND(steps_activities.avg_steps_per_min, 1) AS avg_steps_per_min , ROUND(steps_activities.max_steps_per_min, 1) AS max_steps_per_min , activities.avg_hr AS avg_hr, activities.max_hr AS max_hr, activities.calories AS calories, ROUND(activities.avg_temperature, 1) AS avg_temperature , ROUND(activities.avg_speed, 1) AS avg_speed , ROUND(activities.max_speed, 1) AS max_speed , ROUND(steps_activities.avg_step_length, 1) AS avg_step_length , steps_activities.vo2_max AS vo2_max, activities.training_effect AS training_effect, activities.anaerobic_training_effect AS anaerobic_training_effect, activities.hrz_1_time AS heart_rate_zone_one_time, activities.hrz_2_time AS heart_rate_zone_two_time, activities.hrz_3_time AS heart_rate_zone_three_time, activities.hrz_4_time AS heart_rate_zone_four_time, activities.hrz_5_time AS heart_rate_zone_five_time, "http://maps.google.com/?ie=UTF8&q=" || activities.start_lat || "," || activities.start_long || "&z=13" AS start_loc, "http://maps.google.com/?ie=UTF8&q=" || activities.stop_lat || "," || activities.stop_long || "&z=13" AS stop_loc 
+FROM steps_activities JOIN activities ON activities.activity_id = steps_activities.activity_id 
+WHERE Activities.sport == "hiking" ORDER BY activities.start_time DESC
+
+  VIEW : paddle_activities_view
+    CREATE VIEW paddle_activities_view AS SELECT activities.activity_id AS activity_id, activities.name AS name, activities.description AS description, activities.sport AS sport, activities.sub_sport AS sub_sport, activities.start_time AS start_time, activities.stop_time AS stop_time, activities.elapsed_time AS elapsed_time, ROUND(activities.distance, 1) AS distance , paddle_activities.strokes AS strokes, ROUND(paddle_activities.avg_stroke_distance, 1) AS avg_stroke_distance , activities.avg_cadence AS avg_cadence, activities.max_cadence AS max_cadence, activities.avg_hr AS avg_hr, activities.max_hr AS max_hr, ROUND(activities.calories, 1) AS calories , ROUND(activities.avg_temperature, 1) AS avg_temperature , ROUND(activities.avg_speed, 1) AS avg_speed , ROUND(activities.max_speed, 1) AS max_speed , activities.training_effect AS training_effect, activities.anaerobic_training_effect AS anaerobic_training_effect, "http://maps.google.com/?ie=UTF8&q=" || activities.start_lat || "," || activities.start_long || "&z=13" AS start_loc, "http://maps.google.com/?ie=UTF8&q=" || activities.stop_lat || "," || activities.stop_long || "&z=13" AS stop_loc 
+FROM paddle_activities JOIN activities ON activities.activity_id = paddle_activities.activity_id ORDER BY activities.start_time DESC
+
+  VIEW : running_activities_view
+    CREATE VIEW running_activities_view AS SELECT activities.activity_id AS activity_id, activities.name AS name, activities.description AS description, activities.sub_sport AS sub_sport, activities.course_id AS course_id, activities.start_time AS start_time, activities.stop_time AS stop_time, activities.elapsed_time AS elapsed_time, ROUND(activities.distance, 1) AS distance , steps_activities.steps AS steps, steps_activities.avg_pace AS avg_pace, steps_activities.avg_moving_pace AS avg_moving_pace, steps_activities.max_pace AS max_pace, ROUND(steps_activities.avg_steps_per_min, 1) AS avg_steps_per_min , ROUND(steps_activities.max_steps_per_min, 1) AS max_steps_per_min , activities.avg_hr AS avg_hr, activities.max_hr AS max_hr, activities.avg_rr AS avg_rr, activities.max_rr AS max_rr, activities.calories AS calories, ROUND(activities.avg_temperature, 1) AS avg_temperature , ROUND(activities.avg_speed, 1) AS avg_speed , ROUND(activities.max_speed, 1) AS max_speed , ROUND(steps_activities.avg_step_length, 1) AS avg_step_length , ROUND(steps_activities.avg_vertical_ratio, 1) AS avg_vertical_ratio , steps_activities.avg_gct_balance AS avg_gct_balance, ROUND(steps_activities.avg_vertical_oscillation, 1) AS avg_vertical_oscillation , steps_activities.avg_ground_contact_time AS avg_ground_contact_time, steps_activities.avg_stance_time_percent AS avg_stance_time_percent, steps_activities.vo2_max AS vo2_max, activities.training_effect AS training_effect, activities.anaerobic_training_effect AS anaerobic_training_effect, activities.hrz_1_time AS heart_rate_zone_one_time, activities.hrz_2_time AS heart_rate_zone_two_time, activities.hrz_3_time AS heart_rate_zone_three_time, activities.hrz_4_time AS heart_rate_zone_four_time, activities.hrz_5_time AS heart_rate_zone_five_time, "http://maps.google.com/?ie=UTF8&q=" || activities.start_lat || "," || activities.start_long || "&z=13" AS start_loc, "http://maps.google.com/?ie=UTF8&q=" || activities.stop_lat || "," || activities.stop_long || "&z=13" AS stop_loc 
+FROM steps_activities JOIN activities ON activities.activity_id = steps_activities.activity_id 
+WHERE Activities.sport == "running" ORDER BY activities.start_time DESC
+
+  VIEW : steps_activities_view
+    CREATE VIEW steps_activities_view AS SELECT activities.activity_id AS activity_id, activities.name AS name, activities.description AS description, activities.sport AS sport, activities.sub_sport AS sub_sport, activities.type AS type, activities.course_id AS course_id, activities.start_time AS start_time, activities.stop_time AS stop_time, activities.elapsed_time AS elapsed_time, ROUND(activities.distance, 1) AS distance , steps_activities.steps AS steps, steps_activities.avg_pace AS avg_pace, steps_activities.avg_moving_pace AS avg_moving_pace, steps_activities.max_pace AS max_pace, ROUND(steps_activities.avg_steps_per_min, 1) AS avg_steps_per_min , ROUND(steps_activities.max_steps_per_min, 1) AS max_steps_per_min , activities.avg_hr AS avg_hr, activities.max_hr AS max_hr, activities.calories AS calories, ROUND(activities.avg_temperature, 1) AS avg_temperature , ROUND(activities.avg_speed, 1) AS avg_speed , ROUND(activities.max_speed, 1) AS max_speed , ROUND(steps_activities.avg_step_length, 1) AS avg_step_length , steps_activities.vo2_max AS vo2_max, activities.training_effect AS training_effect, activities.anaerobic_training_effect AS anaerobic_training_effect, activities.hrz_1_time AS heart_rate_zone_one_time, activities.hrz_2_time AS heart_rate_zone_two_time, activities.hrz_3_time AS heart_rate_zone_three_time, activities.hrz_4_time AS heart_rate_zone_four_time, activities.hrz_5_time AS heart_rate_zone_five_time, "http://maps.google.com/?ie=UTF8&q=" || activities.start_lat || "," || activities.start_long || "&z=13" AS start_loc, "http://maps.google.com/?ie=UTF8&q=" || activities.stop_lat || "," || activities.stop_long || "&z=13" AS stop_loc 
+FROM steps_activities JOIN activities ON activities.activity_id = steps_activities.activity_id ORDER BY activities.start_time DESC
+
+  VIEW : walking_activities_view
+    CREATE VIEW walking_activities_view AS SELECT activities.activity_id AS activity_id, activities.name AS name, activities.description AS description, activities.start_time AS start_time, activities.stop_time AS stop_time, activities.elapsed_time AS elapsed_time, ROUND(activities.distance, 1) AS distance , steps_activities.steps AS steps, steps_activities.avg_pace AS avg_pace, steps_activities.avg_moving_pace AS avg_moving_pace, steps_activities.max_pace AS max_pace, ROUND(steps_activities.avg_steps_per_min, 1) AS avg_steps_per_min , ROUND(steps_activities.max_steps_per_min, 1) AS max_steps_per_min , activities.avg_hr AS avg_hr, activities.max_hr AS max_hr, activities.calories AS calories, ROUND(activities.avg_temperature, 1) AS avg_temperature , ROUND(activities.avg_speed, 1) AS avg_speed , ROUND(activities.max_speed, 1) AS max_speed , ROUND(steps_activities.avg_step_length, 1) AS avg_step_length , steps_activities.vo2_max AS vo2_max, activities.training_effect AS training_effect, activities.anaerobic_training_effect AS anaerobic_training_effect, activities.hrz_1_time AS heart_rate_zone_one_time, activities.hrz_2_time AS heart_rate_zone_two_time, activities.hrz_3_time AS heart_rate_zone_three_time, activities.hrz_4_time AS heart_rate_zone_four_time, activities.hrz_5_time AS heart_rate_zone_five_time, "http://maps.google.com/?ie=UTF8&q=" || activities.start_lat || "," || activities.start_long || "&z=13" AS start_loc, "http://maps.google.com/?ie=UTF8&q=" || activities.stop_lat || "," || activities.stop_long || "&z=13" AS stop_loc 
+FROM steps_activities JOIN activities ON activities.activity_id = steps_activities.activity_id 
+WHERE Activities.sport == "walking" ORDER BY activities.start_time DESC
+
+
+======================================================================
+BASE : garmin_monitoring.db  (taille : 157,032,448 octets)
+Tables : 10   Vues : 0
+======================================================================
+
+  TABLE : _attributes
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             False    None            0
+  1    key                                 VARCHAR              True     None            1
+  2    value                               VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex__attributes_1 UNIQUE (key)
+
+  TABLE : monitoring
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    activity_type                       VARCHAR(17)          True     None            2
+  2    intensity                           INTEGER              False    None            0
+  3    duration                            TIME                 True     None            0
+  4    distance                            FLOAT                False    None            0
+  5    cum_active_time                     TIME                 True     None            0
+  6    active_calories                     INTEGER              False    None            0
+  7    steps                               INTEGER              False    None            0
+  8    strokes                             INTEGER              False    None            0
+  9    cycles                              FLOAT                False    None            0
+
+  Index :
+    sqlite_autoindex_monitoring_1 UNIQUE (timestamp, activity_type)
+
+  TABLE : monitoring_climb
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    ascent                              FLOAT                False    None            0
+  2    descent                             FLOAT                False    None            0
+  3    cum_ascent                          FLOAT                False    None            0
+  4    cum_descent                         FLOAT                False    None            0
+
+  Index :
+    sqlite_autoindex_monitoring_climb_2 UNIQUE (timestamp, ascent, descent, cum_ascent, cum_descent)
+    sqlite_autoindex_monitoring_climb_1 UNIQUE (timestamp)
+
+  TABLE : monitoring_hr
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    heart_rate                          INTEGER              True     None            0
+
+  Index :
+    sqlite_autoindex_monitoring_hr_1 UNIQUE (timestamp)
+
+  TABLE : monitoring_hrv_status
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    weekly_average                      FLOAT                False    None            0
+  2    last_night                          FLOAT                False    None            0
+  3    last_night_average                  FLOAT                False    None            0
+  4    baseline_low                        FLOAT                False    None            0
+  5    baseline_high                       FLOAT                False    None            0
+  6    status                              INTEGER              False    None            0
+  7    reading_count                       INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_monitoring_hrv_status_1 UNIQUE (timestamp)
+
+  TABLE : monitoring_hrv_value
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    hrv                                 FLOAT                True     None            0
+
+  Index :
+    sqlite_autoindex_monitoring_hrv_value_1 UNIQUE (timestamp)
+
+  TABLE : monitoring_info
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    file_id                             INTEGER              True     None            0
+  2    activity_type                       VARCHAR(17)          True     None            2
+  3    resting_metabolic_rate              INTEGER              False    None            0
+  4    cycles_to_distance                  FLOAT                False    None            0
+  5    cycles_to_calories                  FLOAT                False    None            0
+
+  Index :
+    sqlite_autoindex_monitoring_info_1 UNIQUE (timestamp, activity_type)
+
+  TABLE : monitoring_intensity
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    moderate_activity_time              TIME                 True     None            0
+  2    vigorous_activity_time              TIME                 True     None            0
+
+  Index :
+    sqlite_autoindex_monitoring_intensity_2 UNIQUE (timestamp, moderate_activity_time, vigorous_activity_time)
+    sqlite_autoindex_monitoring_intensity_1 UNIQUE (timestamp)
+
+  TABLE : monitoring_pulse_ox
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    pulse_ox                            FLOAT                True     None            0
+
+  Index :
+    sqlite_autoindex_monitoring_pulse_ox_1 UNIQUE (timestamp)
+
+  TABLE : monitoring_rr
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    rr                                  FLOAT                True     None            0
+
+  Index :
+    sqlite_autoindex_monitoring_rr_1 UNIQUE (timestamp)
+
+
+======================================================================
+BASE : garmin_summary.db  (taille : 8,011,776 octets)
+Tables : 7   Vues : 4
+======================================================================
+
+  TABLE : _attributes
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             False    None            0
+  1    key                                 VARCHAR              True     None            1
+  2    value                               VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex__attributes_1 UNIQUE (key)
+
+  TABLE : days_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    day                                 DATETIME             True     None            1
+  1    hr_avg                              FLOAT                False    None            0
+  2    hr_min                              FLOAT                False    None            0
+  3    hr_max                              FLOAT                False    None            0
+  4    rhr_avg                             FLOAT                False    None            0
+  5    rhr_min                             FLOAT                False    None            0
+  6    rhr_max                             FLOAT                False    None            0
+  7    inactive_hr_avg                     FLOAT                False    None            0
+  8    inactive_hr_min                     FLOAT                False    None            0
+  9    inactive_hr_max                     FLOAT                False    None            0
+  10   weight_avg                          FLOAT                False    None            0
+  11   weight_min                          FLOAT                False    None            0
+  12   weight_max                          FLOAT                False    None            0
+  13   intensity_time                      TIME                 True     None            0
+  14   moderate_activity_time              TIME                 True     None            0
+  15   vigorous_activity_time              TIME                 True     None            0
+  16   intensity_time_goal                 TIME                 True     None            0
+  17   steps                               INTEGER              False    None            0
+  18   steps_goal                          INTEGER              False    None            0
+  19   floors                              FLOAT                False    None            0
+  20   floors_goal                         FLOAT                False    None            0
+  21   sleep_avg                           TIME                 True     None            0
+  22   sleep_min                           TIME                 True     None            0
+  23   sleep_max                           TIME                 True     None            0
+  24   rem_sleep_avg                       TIME                 True     None            0
+  25   rem_sleep_min                       TIME                 True     None            0
+  26   rem_sleep_max                       TIME                 True     None            0
+  27   stress_avg                          INTEGER              False    None            0
+  28   calories_avg                        INTEGER              False    None            0
+  29   calories_bmr_avg                    INTEGER              False    None            0
+  30   calories_active_avg                 INTEGER              False    None            0
+  31   calories_goal                       INTEGER              False    None            0
+  32   calories_consumed_avg               INTEGER              False    None            0
+  33   activities                          INTEGER              False    None            0
+  34   activities_calories                 INTEGER              False    None            0
+  35   activities_distance                 INTEGER              False    None            0
+  36   hydration_goal                      INTEGER              False    None            0
+  37   hydration_avg                       INTEGER              False    None            0
+  38   hydration_intake                    INTEGER              False    None            0
+  39   sweat_loss_avg                      INTEGER              False    None            0
+  40   sweat_loss                          INTEGER              False    None            0
+  41   spo2_avg                            FLOAT                False    None            0
+  42   spo2_min                            FLOAT                False    None            0
+  43   rr_waking_avg                       FLOAT                False    None            0
+  44   rr_max                              FLOAT                False    None            0
+  45   rr_min                              FLOAT                False    None            0
+  46   bb_max                              INTEGER              False    None            0
+  47   bb_min                              INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_days_summary_1 UNIQUE (day)
+
+  TABLE : intensity_hr
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             True     None            1
+  1    intensity                           INTEGER              True     None            0
+  2    heart_rate                          INTEGER              True     None            0
+
+  Index :
+    sqlite_autoindex_intensity_hr_1 UNIQUE (timestamp)
+
+  TABLE : months_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    first_day                           DATETIME             True     None            1
+  1    hr_avg                              FLOAT                False    None            0
+  2    hr_min                              FLOAT                False    None            0
+  3    hr_max                              FLOAT                False    None            0
+  4    rhr_avg                             FLOAT                False    None            0
+  5    rhr_min                             FLOAT                False    None            0
+  6    rhr_max                             FLOAT                False    None            0
+  7    inactive_hr_avg                     FLOAT                False    None            0
+  8    inactive_hr_min                     FLOAT                False    None            0
+  9    inactive_hr_max                     FLOAT                False    None            0
+  10   weight_avg                          FLOAT                False    None            0
+  11   weight_min                          FLOAT                False    None            0
+  12   weight_max                          FLOAT                False    None            0
+  13   intensity_time                      TIME                 True     None            0
+  14   moderate_activity_time              TIME                 True     None            0
+  15   vigorous_activity_time              TIME                 True     None            0
+  16   intensity_time_goal                 TIME                 True     None            0
+  17   steps                               INTEGER              False    None            0
+  18   steps_goal                          INTEGER              False    None            0
+  19   floors                              FLOAT                False    None            0
+  20   floors_goal                         FLOAT                False    None            0
+  21   sleep_avg                           TIME                 True     None            0
+  22   sleep_min                           TIME                 True     None            0
+  23   sleep_max                           TIME                 True     None            0
+  24   rem_sleep_avg                       TIME                 True     None            0
+  25   rem_sleep_min                       TIME                 True     None            0
+  26   rem_sleep_max                       TIME                 True     None            0
+  27   stress_avg                          INTEGER              False    None            0
+  28   calories_avg                        INTEGER              False    None            0
+  29   calories_bmr_avg                    INTEGER              False    None            0
+  30   calories_active_avg                 INTEGER              False    None            0
+  31   calories_goal                       INTEGER              False    None            0
+  32   calories_consumed_avg               INTEGER              False    None            0
+  33   activities                          INTEGER              False    None            0
+  34   activities_calories                 INTEGER              False    None            0
+  35   activities_distance                 INTEGER              False    None            0
+  36   hydration_goal                      INTEGER              False    None            0
+  37   hydration_avg                       INTEGER              False    None            0
+  38   hydration_intake                    INTEGER              False    None            0
+  39   sweat_loss_avg                      INTEGER              False    None            0
+  40   sweat_loss                          INTEGER              False    None            0
+  41   spo2_avg                            FLOAT                False    None            0
+  42   spo2_min                            FLOAT                False    None            0
+  43   rr_waking_avg                       FLOAT                False    None            0
+  44   rr_max                              FLOAT                False    None            0
+  45   rr_min                              FLOAT                False    None            0
+  46   bb_max                              INTEGER              False    None            0
+  47   bb_min                              INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_months_summary_1 UNIQUE (first_day)
+
+  TABLE : summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             False    None            0
+  1    key                                 VARCHAR              True     None            1
+  2    value                               VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex_summary_1 UNIQUE (key)
+
+  TABLE : weeks_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    first_day                           DATETIME             True     None            1
+  1    hr_avg                              FLOAT                False    None            0
+  2    hr_min                              FLOAT                False    None            0
+  3    hr_max                              FLOAT                False    None            0
+  4    rhr_avg                             FLOAT                False    None            0
+  5    rhr_min                             FLOAT                False    None            0
+  6    rhr_max                             FLOAT                False    None            0
+  7    inactive_hr_avg                     FLOAT                False    None            0
+  8    inactive_hr_min                     FLOAT                False    None            0
+  9    inactive_hr_max                     FLOAT                False    None            0
+  10   weight_avg                          FLOAT                False    None            0
+  11   weight_min                          FLOAT                False    None            0
+  12   weight_max                          FLOAT                False    None            0
+  13   intensity_time                      TIME                 True     None            0
+  14   moderate_activity_time              TIME                 True     None            0
+  15   vigorous_activity_time              TIME                 True     None            0
+  16   intensity_time_goal                 TIME                 True     None            0
+  17   steps                               INTEGER              False    None            0
+  18   steps_goal                          INTEGER              False    None            0
+  19   floors                              FLOAT                False    None            0
+  20   floors_goal                         FLOAT                False    None            0
+  21   sleep_avg                           TIME                 True     None            0
+  22   sleep_min                           TIME                 True     None            0
+  23   sleep_max                           TIME                 True     None            0
+  24   rem_sleep_avg                       TIME                 True     None            0
+  25   rem_sleep_min                       TIME                 True     None            0
+  26   rem_sleep_max                       TIME                 True     None            0
+  27   stress_avg                          INTEGER              False    None            0
+  28   calories_avg                        INTEGER              False    None            0
+  29   calories_bmr_avg                    INTEGER              False    None            0
+  30   calories_active_avg                 INTEGER              False    None            0
+  31   calories_goal                       INTEGER              False    None            0
+  32   calories_consumed_avg               INTEGER              False    None            0
+  33   activities                          INTEGER              False    None            0
+  34   activities_calories                 INTEGER              False    None            0
+  35   activities_distance                 INTEGER              False    None            0
+  36   hydration_goal                      INTEGER              False    None            0
+  37   hydration_avg                       INTEGER              False    None            0
+  38   hydration_intake                    INTEGER              False    None            0
+  39   sweat_loss_avg                      INTEGER              False    None            0
+  40   sweat_loss                          INTEGER              False    None            0
+  41   spo2_avg                            FLOAT                False    None            0
+  42   spo2_min                            FLOAT                False    None            0
+  43   rr_waking_avg                       FLOAT                False    None            0
+  44   rr_max                              FLOAT                False    None            0
+  45   rr_min                              FLOAT                False    None            0
+  46   bb_max                              INTEGER              False    None            0
+  47   bb_min                              INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_weeks_summary_1 UNIQUE (first_day)
+
+  TABLE : years_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    first_day                           DATETIME             True     None            1
+  1    hr_avg                              FLOAT                False    None            0
+  2    hr_min                              FLOAT                False    None            0
+  3    hr_max                              FLOAT                False    None            0
+  4    rhr_avg                             FLOAT                False    None            0
+  5    rhr_min                             FLOAT                False    None            0
+  6    rhr_max                             FLOAT                False    None            0
+  7    inactive_hr_avg                     FLOAT                False    None            0
+  8    inactive_hr_min                     FLOAT                False    None            0
+  9    inactive_hr_max                     FLOAT                False    None            0
+  10   weight_avg                          FLOAT                False    None            0
+  11   weight_min                          FLOAT                False    None            0
+  12   weight_max                          FLOAT                False    None            0
+  13   intensity_time                      TIME                 True     None            0
+  14   moderate_activity_time              TIME                 True     None            0
+  15   vigorous_activity_time              TIME                 True     None            0
+  16   intensity_time_goal                 TIME                 True     None            0
+  17   steps                               INTEGER              False    None            0
+  18   steps_goal                          INTEGER              False    None            0
+  19   floors                              FLOAT                False    None            0
+  20   floors_goal                         FLOAT                False    None            0
+  21   sleep_avg                           TIME                 True     None            0
+  22   sleep_min                           TIME                 True     None            0
+  23   sleep_max                           TIME                 True     None            0
+  24   rem_sleep_avg                       TIME                 True     None            0
+  25   rem_sleep_min                       TIME                 True     None            0
+  26   rem_sleep_max                       TIME                 True     None            0
+  27   stress_avg                          INTEGER              False    None            0
+  28   calories_avg                        INTEGER              False    None            0
+  29   calories_bmr_avg                    INTEGER              False    None            0
+  30   calories_active_avg                 INTEGER              False    None            0
+  31   calories_goal                       INTEGER              False    None            0
+  32   calories_consumed_avg               INTEGER              False    None            0
+  33   activities                          INTEGER              False    None            0
+  34   activities_calories                 INTEGER              False    None            0
+  35   activities_distance                 INTEGER              False    None            0
+  36   hydration_goal                      INTEGER              False    None            0
+  37   hydration_avg                       INTEGER              False    None            0
+  38   hydration_intake                    INTEGER              False    None            0
+  39   sweat_loss_avg                      INTEGER              False    None            0
+  40   sweat_loss                          INTEGER              False    None            0
+  41   spo2_avg                            FLOAT                False    None            0
+  42   spo2_min                            FLOAT                False    None            0
+  43   rr_waking_avg                       FLOAT                False    None            0
+  44   rr_max                              FLOAT                False    None            0
+  45   rr_min                              FLOAT                False    None            0
+  46   bb_max                              INTEGER              False    None            0
+  47   bb_min                              INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_years_summary_1 UNIQUE (first_day)
+
+  VUES :
+  ------------------------------------------------------------
+  VIEW : days_summary_view
+    CREATE VIEW days_summary_view AS SELECT days_summary.day AS day, ROUND(days_summary.hr_avg, 1) AS hr_avg , ROUND(days_summary.hr_min, 1) AS hr_min , ROUND(days_summary.hr_max, 1) AS hr_max , ROUND(days_summary.rhr_avg, 1) AS rhr , ROUND(days_summary.inactive_hr_avg, 1) AS inactive_hr , ROUND(days_summary.weight_avg, 1) AS weight , days_summary.intensity_time AS intensity_time, days_summary.moderate_activity_time AS moderate_activity_time, days_summary.vigorous_activity_time AS vigorous_activity_time, days_summary.steps AS steps, ROUND(round((steps * 100) / steps_goal), 1) AS steps_goal_percent , ROUND(days_summary.floors, 1) AS floors , ROUND(round((floors * 100) / floors_goal), 1) AS floors_goal_percent , days_summary.sleep_avg AS sleep_avg, days_summary.rem_sleep_avg AS rem_sleep_avg, ROUND(days_summary.stress_avg, 1) AS stress_avg , ROUND(days_summary.calories_avg, 1) AS calories_avg , ROUND(days_summary.calories_bmr_avg, 1) AS calories_bmr_avg , ROUND(days_summary.calories_active_avg, 1) AS calories_active_avg , ROUND(days_summary.calories_consumed_avg, 1) AS calories_consumed_avg , ROUND(days_summary.calories_goal, 1) AS calories_goal , days_summary.activities AS activities, ROUND(days_summary.activities_calories, 1) AS activities_calories , ROUND(days_summary.activities_distance, 1) AS activities_distance , ROUND(days_summary.hydration_goal, 1) AS hydration_goal , ROUND(days_summary.hydration_avg, 1) AS hydration_avg , ROUND(days_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(days_summary.spo2_avg, 1) AS spo2_avg , ROUND(days_summary.spo2_min, 1) AS spo2_min , ROUND(days_summary.rr_waking_avg, 1) AS rr_waking_avg , ROUND(days_summary.rr_max, 1) AS rr_max , ROUND(days_summary.rr_min, 1) AS rr_min , ROUND(days_summary.bb_max, 1) AS bb_max , ROUND(days_summary.bb_min, 1) AS bb_min  
+FROM days_summary ORDER BY days_summary.day DESC
+
+  VIEW : months_summary_view
+    CREATE VIEW months_summary_view AS SELECT months_summary.first_day AS first_day, ROUND(months_summary.rhr_avg, 1) AS rhr , ROUND(months_summary.inactive_hr_avg, 1) AS inactive_hr , ROUND(months_summary.weight_avg, 1) AS weight , months_summary.intensity_time AS intensity_time, months_summary.moderate_activity_time AS moderate_activity_time, months_summary.vigorous_activity_time AS vigorous_activity_time, months_summary.steps AS total_steps, ROUND(round(steps / 28), 1) AS steps_avg , ROUND(round((steps * 100) / steps_goal), 1) AS steps_goal_percent , ROUND(floors, 1) AS total_floors , ROUND(round(floors / 28), 1) AS floors_avg , ROUND(round((floors * 100) / floors_goal), 1) AS floors_goal_percent , months_summary.sleep_avg AS sleep_avg, months_summary.rem_sleep_avg AS rem_sleep_avg, ROUND(months_summary.stress_avg, 1) AS stress_avg , ROUND(months_summary.calories_avg, 1) AS calories_avg , ROUND(months_summary.calories_bmr_avg, 1) AS calories_bmr_avg , ROUND(months_summary.calories_active_avg, 1) AS calories_active_avg , ROUND(months_summary.calories_consumed_avg, 1) AS calories_consumed_avg , ROUND(months_summary.calories_goal, 1) AS calories_goal , months_summary.activities AS activities, ROUND(months_summary.activities_calories, 1) AS activities_calories , ROUND(months_summary.activities_distance, 1) AS activities_distance , ROUND(months_summary.hydration_goal, 1) AS hydration_goal , ROUND(months_summary.hydration_avg, 1) AS hydration_avg , ROUND(months_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(months_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(months_summary.spo2_avg, 1) AS spo2_avg , ROUND(months_summary.rr_waking_avg, 1) AS rr_waking_avg  
+FROM months_summary ORDER BY months_summary.first_day DESC
+
+  VIEW : weeks_summary_view
+    CREATE VIEW weeks_summary_view AS SELECT weeks_summary.first_day AS first_day, ROUND(weeks_summary.rhr_avg, 1) AS rhr , ROUND(weeks_summary.inactive_hr_avg, 1) AS inactive_hr , ROUND(weeks_summary.weight_avg, 1) AS weight , weeks_summary.intensity_time AS intensity_time, weeks_summary.moderate_activity_time AS moderate_activity_time, weeks_summary.vigorous_activity_time AS vigorous_activity_time, weeks_summary.steps AS total_steps, ROUND(round(steps / 7), 1) AS steps_avg , ROUND(round((steps * 100) / steps_goal), 1) AS steps_goal_percent , ROUND(floors, 1) AS total_floors , ROUND(round(floors / 7), 1) AS floors_avg , ROUND(round((floors * 100) / floors_goal), 1) AS floors_goal_percent , weeks_summary.sleep_avg AS sleep_avg, weeks_summary.rem_sleep_avg AS rem_sleep_avg, ROUND(weeks_summary.stress_avg, 1) AS stress_avg , ROUND(weeks_summary.calories_avg, 1) AS calories_avg , ROUND(weeks_summary.calories_bmr_avg, 1) AS calories_bmr_avg , ROUND(weeks_summary.calories_active_avg, 1) AS calories_active_avg , ROUND(weeks_summary.calories_consumed_avg, 1) AS calories_consumed_avg , ROUND(weeks_summary.calories_goal, 1) AS calories_goal , weeks_summary.activities AS activities, ROUND(weeks_summary.activities_calories, 1) AS activities_calories , ROUND(weeks_summary.activities_distance, 1) AS activities_distance , ROUND(weeks_summary.hydration_goal, 1) AS hydration_goal , ROUND(weeks_summary.hydration_avg, 1) AS hydration_avg , ROUND(weeks_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(weeks_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(weeks_summary.spo2_avg, 1) AS spo2_avg , ROUND(weeks_summary.rr_waking_avg, 1) AS rr_waking_avg  
+FROM weeks_summary ORDER BY weeks_summary.first_day DESC
+
+  VIEW : years_summary_view
+    CREATE VIEW years_summary_view AS SELECT years_summary.first_day AS first_day, ROUND(years_summary.rhr_avg, 1) AS rhr , ROUND(years_summary.inactive_hr_avg, 1) AS inactive_hr , ROUND(years_summary.weight_avg, 1) AS weight , years_summary.intensity_time AS intensity_time, years_summary.moderate_activity_time AS moderate_activity_time, years_summary.vigorous_activity_time AS vigorous_activity_time, years_summary.steps AS total_steps, ROUND(round(steps / 365), 1) AS steps_avg , ROUND(round((steps * 100) / steps_goal), 1) AS steps_goal_percent , ROUND(floors, 1) AS total_floors , ROUND(round(floors / 365), 1) AS floors_avg , ROUND(round((floors * 100) / floors_goal), 1) AS floors_goal_percent , years_summary.sleep_avg AS sleep_avg, years_summary.rem_sleep_avg AS rem_sleep_avg, ROUND(years_summary.stress_avg, 1) AS stress_avg , ROUND(years_summary.calories_avg, 1) AS calories_avg , ROUND(years_summary.calories_bmr_avg, 1) AS calories_bmr_avg , ROUND(years_summary.calories_active_avg, 1) AS calories_active_avg , ROUND(years_summary.calories_consumed_avg, 1) AS calories_consumed_avg , ROUND(years_summary.calories_goal, 1) AS calories_goal , years_summary.activities AS activities, ROUND(years_summary.activities_calories, 1) AS activities_calories , ROUND(years_summary.activities_distance, 1) AS activities_distance , ROUND(years_summary.hydration_goal, 1) AS hydration_goal , ROUND(years_summary.hydration_avg, 1) AS hydration_avg , ROUND(years_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(years_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(years_summary.spo2_avg, 1) AS spo2_avg , ROUND(years_summary.rr_waking_avg, 1) AS rr_waking_avg  
+FROM years_summary ORDER BY years_summary.first_day DESC
+
+
+======================================================================
+BASE : summary.db  (taille : 524,288 octets)
+Tables : 6   Vues : 4
+======================================================================
+
+  TABLE : _attributes
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             False    None            0
+  1    key                                 VARCHAR              True     None            1
+  2    value                               VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex__attributes_1 UNIQUE (key)
+
+  TABLE : days_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    day                                 DATETIME             True     None            1
+  1    hr_avg                              FLOAT                False    None            0
+  2    hr_min                              FLOAT                False    None            0
+  3    hr_max                              FLOAT                False    None            0
+  4    rhr_avg                             FLOAT                False    None            0
+  5    rhr_min                             FLOAT                False    None            0
+  6    rhr_max                             FLOAT                False    None            0
+  7    inactive_hr_avg                     FLOAT                False    None            0
+  8    inactive_hr_min                     FLOAT                False    None            0
+  9    inactive_hr_max                     FLOAT                False    None            0
+  10   weight_avg                          FLOAT                False    None            0
+  11   weight_min                          FLOAT                False    None            0
+  12   weight_max                          FLOAT                False    None            0
+  13   intensity_time                      TIME                 True     None            0
+  14   moderate_activity_time              TIME                 True     None            0
+  15   vigorous_activity_time              TIME                 True     None            0
+  16   intensity_time_goal                 TIME                 True     None            0
+  17   steps                               INTEGER              False    None            0
+  18   steps_goal                          INTEGER              False    None            0
+  19   floors                              FLOAT                False    None            0
+  20   floors_goal                         FLOAT                False    None            0
+  21   sleep_avg                           TIME                 True     None            0
+  22   sleep_min                           TIME                 True     None            0
+  23   sleep_max                           TIME                 True     None            0
+  24   rem_sleep_avg                       TIME                 True     None            0
+  25   rem_sleep_min                       TIME                 True     None            0
+  26   rem_sleep_max                       TIME                 True     None            0
+  27   stress_avg                          INTEGER              False    None            0
+  28   calories_avg                        INTEGER              False    None            0
+  29   calories_bmr_avg                    INTEGER              False    None            0
+  30   calories_active_avg                 INTEGER              False    None            0
+  31   calories_goal                       INTEGER              False    None            0
+  32   calories_consumed_avg               INTEGER              False    None            0
+  33   activities                          INTEGER              False    None            0
+  34   activities_calories                 INTEGER              False    None            0
+  35   activities_distance                 INTEGER              False    None            0
+  36   hydration_goal                      INTEGER              False    None            0
+  37   hydration_avg                       INTEGER              False    None            0
+  38   hydration_intake                    INTEGER              False    None            0
+  39   sweat_loss_avg                      INTEGER              False    None            0
+  40   sweat_loss                          INTEGER              False    None            0
+  41   spo2_avg                            FLOAT                False    None            0
+  42   spo2_min                            FLOAT                False    None            0
+  43   rr_waking_avg                       FLOAT                False    None            0
+  44   rr_max                              FLOAT                False    None            0
+  45   rr_min                              FLOAT                False    None            0
+  46   bb_max                              INTEGER              False    None            0
+  47   bb_min                              INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_days_summary_1 UNIQUE (day)
+
+  TABLE : months_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    first_day                           DATETIME             True     None            1
+  1    hr_avg                              FLOAT                False    None            0
+  2    hr_min                              FLOAT                False    None            0
+  3    hr_max                              FLOAT                False    None            0
+  4    rhr_avg                             FLOAT                False    None            0
+  5    rhr_min                             FLOAT                False    None            0
+  6    rhr_max                             FLOAT                False    None            0
+  7    inactive_hr_avg                     FLOAT                False    None            0
+  8    inactive_hr_min                     FLOAT                False    None            0
+  9    inactive_hr_max                     FLOAT                False    None            0
+  10   weight_avg                          FLOAT                False    None            0
+  11   weight_min                          FLOAT                False    None            0
+  12   weight_max                          FLOAT                False    None            0
+  13   intensity_time                      TIME                 True     None            0
+  14   moderate_activity_time              TIME                 True     None            0
+  15   vigorous_activity_time              TIME                 True     None            0
+  16   intensity_time_goal                 TIME                 True     None            0
+  17   steps                               INTEGER              False    None            0
+  18   steps_goal                          INTEGER              False    None            0
+  19   floors                              FLOAT                False    None            0
+  20   floors_goal                         FLOAT                False    None            0
+  21   sleep_avg                           TIME                 True     None            0
+  22   sleep_min                           TIME                 True     None            0
+  23   sleep_max                           TIME                 True     None            0
+  24   rem_sleep_avg                       TIME                 True     None            0
+  25   rem_sleep_min                       TIME                 True     None            0
+  26   rem_sleep_max                       TIME                 True     None            0
+  27   stress_avg                          INTEGER              False    None            0
+  28   calories_avg                        INTEGER              False    None            0
+  29   calories_bmr_avg                    INTEGER              False    None            0
+  30   calories_active_avg                 INTEGER              False    None            0
+  31   calories_goal                       INTEGER              False    None            0
+  32   calories_consumed_avg               INTEGER              False    None            0
+  33   activities                          INTEGER              False    None            0
+  34   activities_calories                 INTEGER              False    None            0
+  35   activities_distance                 INTEGER              False    None            0
+  36   hydration_goal                      INTEGER              False    None            0
+  37   hydration_avg                       INTEGER              False    None            0
+  38   hydration_intake                    INTEGER              False    None            0
+  39   sweat_loss_avg                      INTEGER              False    None            0
+  40   sweat_loss                          INTEGER              False    None            0
+  41   spo2_avg                            FLOAT                False    None            0
+  42   spo2_min                            FLOAT                False    None            0
+  43   rr_waking_avg                       FLOAT                False    None            0
+  44   rr_max                              FLOAT                False    None            0
+  45   rr_min                              FLOAT                False    None            0
+  46   bb_max                              INTEGER              False    None            0
+  47   bb_min                              INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_months_summary_1 UNIQUE (first_day)
+
+  TABLE : summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    timestamp                           DATETIME             False    None            0
+  1    key                                 VARCHAR              True     None            1
+  2    value                               VARCHAR              False    None            0
+
+  Index :
+    sqlite_autoindex_summary_1 UNIQUE (key)
+
+  TABLE : weeks_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    first_day                           DATETIME             True     None            1
+  1    hr_avg                              FLOAT                False    None            0
+  2    hr_min                              FLOAT                False    None            0
+  3    hr_max                              FLOAT                False    None            0
+  4    rhr_avg                             FLOAT                False    None            0
+  5    rhr_min                             FLOAT                False    None            0
+  6    rhr_max                             FLOAT                False    None            0
+  7    inactive_hr_avg                     FLOAT                False    None            0
+  8    inactive_hr_min                     FLOAT                False    None            0
+  9    inactive_hr_max                     FLOAT                False    None            0
+  10   weight_avg                          FLOAT                False    None            0
+  11   weight_min                          FLOAT                False    None            0
+  12   weight_max                          FLOAT                False    None            0
+  13   intensity_time                      TIME                 True     None            0
+  14   moderate_activity_time              TIME                 True     None            0
+  15   vigorous_activity_time              TIME                 True     None            0
+  16   intensity_time_goal                 TIME                 True     None            0
+  17   steps                               INTEGER              False    None            0
+  18   steps_goal                          INTEGER              False    None            0
+  19   floors                              FLOAT                False    None            0
+  20   floors_goal                         FLOAT                False    None            0
+  21   sleep_avg                           TIME                 True     None            0
+  22   sleep_min                           TIME                 True     None            0
+  23   sleep_max                           TIME                 True     None            0
+  24   rem_sleep_avg                       TIME                 True     None            0
+  25   rem_sleep_min                       TIME                 True     None            0
+  26   rem_sleep_max                       TIME                 True     None            0
+  27   stress_avg                          INTEGER              False    None            0
+  28   calories_avg                        INTEGER              False    None            0
+  29   calories_bmr_avg                    INTEGER              False    None            0
+  30   calories_active_avg                 INTEGER              False    None            0
+  31   calories_goal                       INTEGER              False    None            0
+  32   calories_consumed_avg               INTEGER              False    None            0
+  33   activities                          INTEGER              False    None            0
+  34   activities_calories                 INTEGER              False    None            0
+  35   activities_distance                 INTEGER              False    None            0
+  36   hydration_goal                      INTEGER              False    None            0
+  37   hydration_avg                       INTEGER              False    None            0
+  38   hydration_intake                    INTEGER              False    None            0
+  39   sweat_loss_avg                      INTEGER              False    None            0
+  40   sweat_loss                          INTEGER              False    None            0
+  41   spo2_avg                            FLOAT                False    None            0
+  42   spo2_min                            FLOAT                False    None            0
+  43   rr_waking_avg                       FLOAT                False    None            0
+  44   rr_max                              FLOAT                False    None            0
+  45   rr_min                              FLOAT                False    None            0
+  46   bb_max                              INTEGER              False    None            0
+  47   bb_min                              INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_weeks_summary_1 UNIQUE (first_day)
+
+  TABLE : years_summary
+  ------------------------------------------------------------
+  cid  nom                                 type                 notnull  defaut          pk
+  ---- ----------------------------------- -------------------- -------- --------------- ----
+  0    first_day                           DATETIME             True     None            1
+  1    hr_avg                              FLOAT                False    None            0
+  2    hr_min                              FLOAT                False    None            0
+  3    hr_max                              FLOAT                False    None            0
+  4    rhr_avg                             FLOAT                False    None            0
+  5    rhr_min                             FLOAT                False    None            0
+  6    rhr_max                             FLOAT                False    None            0
+  7    inactive_hr_avg                     FLOAT                False    None            0
+  8    inactive_hr_min                     FLOAT                False    None            0
+  9    inactive_hr_max                     FLOAT                False    None            0
+  10   weight_avg                          FLOAT                False    None            0
+  11   weight_min                          FLOAT                False    None            0
+  12   weight_max                          FLOAT                False    None            0
+  13   intensity_time                      TIME                 True     None            0
+  14   moderate_activity_time              TIME                 True     None            0
+  15   vigorous_activity_time              TIME                 True     None            0
+  16   intensity_time_goal                 TIME                 True     None            0
+  17   steps                               INTEGER              False    None            0
+  18   steps_goal                          INTEGER              False    None            0
+  19   floors                              FLOAT                False    None            0
+  20   floors_goal                         FLOAT                False    None            0
+  21   sleep_avg                           TIME                 True     None            0
+  22   sleep_min                           TIME                 True     None            0
+  23   sleep_max                           TIME                 True     None            0
+  24   rem_sleep_avg                       TIME                 True     None            0
+  25   rem_sleep_min                       TIME                 True     None            0
+  26   rem_sleep_max                       TIME                 True     None            0
+  27   stress_avg                          INTEGER              False    None            0
+  28   calories_avg                        INTEGER              False    None            0
+  29   calories_bmr_avg                    INTEGER              False    None            0
+  30   calories_active_avg                 INTEGER              False    None            0
+  31   calories_goal                       INTEGER              False    None            0
+  32   calories_consumed_avg               INTEGER              False    None            0
+  33   activities                          INTEGER              False    None            0
+  34   activities_calories                 INTEGER              False    None            0
+  35   activities_distance                 INTEGER              False    None            0
+  36   hydration_goal                      INTEGER              False    None            0
+  37   hydration_avg                       INTEGER              False    None            0
+  38   hydration_intake                    INTEGER              False    None            0
+  39   sweat_loss_avg                      INTEGER              False    None            0
+  40   sweat_loss                          INTEGER              False    None            0
+  41   spo2_avg                            FLOAT                False    None            0
+  42   spo2_min                            FLOAT                False    None            0
+  43   rr_waking_avg                       FLOAT                False    None            0
+  44   rr_max                              FLOAT                False    None            0
+  45   rr_min                              FLOAT                False    None            0
+  46   bb_max                              INTEGER              False    None            0
+  47   bb_min                              INTEGER              False    None            0
+
+  Index :
+    sqlite_autoindex_years_summary_1 UNIQUE (first_day)
+
+  VUES :
+  ------------------------------------------------------------
+  VIEW : days_summary_view
+    CREATE VIEW days_summary_view AS SELECT days_summary.day AS day, ROUND(days_summary.hr_avg, 1) AS hr_avg , ROUND(days_summary.hr_min, 1) AS hr_min , ROUND(days_summary.hr_max, 1) AS hr_max , ROUND(days_summary.rhr_avg, 1) AS rhr , ROUND(days_summary.inactive_hr_avg, 1) AS inactive_hr , ROUND(days_summary.weight_avg, 1) AS weight , days_summary.intensity_time AS intensity_time, days_summary.moderate_activity_time AS moderate_activity_time, days_summary.vigorous_activity_time AS vigorous_activity_time, days_summary.steps AS steps, ROUND(round((steps * 100) / steps_goal), 1) AS steps_goal_percent , ROUND(days_summary.floors, 1) AS floors , ROUND(round((floors * 100) / floors_goal), 1) AS floors_goal_percent , days_summary.sleep_avg AS sleep_avg, days_summary.rem_sleep_avg AS rem_sleep_avg, ROUND(days_summary.stress_avg, 1) AS stress_avg , ROUND(days_summary.calories_avg, 1) AS calories_avg , ROUND(days_summary.calories_bmr_avg, 1) AS calories_bmr_avg , ROUND(days_summary.calories_active_avg, 1) AS calories_active_avg , ROUND(days_summary.calories_consumed_avg, 1) AS calories_consumed_avg , ROUND(days_summary.calories_goal, 1) AS calories_goal , days_summary.activities AS activities, ROUND(days_summary.activities_calories, 1) AS activities_calories , ROUND(days_summary.activities_distance, 1) AS activities_distance , ROUND(days_summary.hydration_goal, 1) AS hydration_goal , ROUND(days_summary.hydration_avg, 1) AS hydration_avg , ROUND(days_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(days_summary.spo2_avg, 1) AS spo2_avg , ROUND(days_summary.spo2_min, 1) AS spo2_min , ROUND(days_summary.rr_waking_avg, 1) AS rr_waking_avg , ROUND(days_summary.rr_max, 1) AS rr_max , ROUND(days_summary.rr_min, 1) AS rr_min , ROUND(days_summary.bb_max, 1) AS bb_max , ROUND(days_summary.bb_min, 1) AS bb_min  
+FROM days_summary ORDER BY days_summary.day DESC
+
+  VIEW : months_summary_view
+    CREATE VIEW months_summary_view AS SELECT months_summary.first_day AS first_day, ROUND(months_summary.rhr_avg, 1) AS rhr , ROUND(months_summary.inactive_hr_avg, 1) AS inactive_hr , ROUND(months_summary.weight_avg, 1) AS weight , months_summary.intensity_time AS intensity_time, months_summary.moderate_activity_time AS moderate_activity_time, months_summary.vigorous_activity_time AS vigorous_activity_time, months_summary.steps AS total_steps, ROUND(round(steps / 28), 1) AS steps_avg , ROUND(round((steps * 100) / steps_goal), 1) AS steps_goal_percent , ROUND(floors, 1) AS total_floors , ROUND(round(floors / 28), 1) AS floors_avg , ROUND(round((floors * 100) / floors_goal), 1) AS floors_goal_percent , months_summary.sleep_avg AS sleep_avg, months_summary.rem_sleep_avg AS rem_sleep_avg, ROUND(months_summary.stress_avg, 1) AS stress_avg , ROUND(months_summary.calories_avg, 1) AS calories_avg , ROUND(months_summary.calories_bmr_avg, 1) AS calories_bmr_avg , ROUND(months_summary.calories_active_avg, 1) AS calories_active_avg , ROUND(months_summary.calories_consumed_avg, 1) AS calories_consumed_avg , ROUND(months_summary.calories_goal, 1) AS calories_goal , months_summary.activities AS activities, ROUND(months_summary.activities_calories, 1) AS activities_calories , ROUND(months_summary.activities_distance, 1) AS activities_distance , ROUND(months_summary.hydration_goal, 1) AS hydration_goal , ROUND(months_summary.hydration_avg, 1) AS hydration_avg , ROUND(months_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(months_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(months_summary.spo2_avg, 1) AS spo2_avg , ROUND(months_summary.rr_waking_avg, 1) AS rr_waking_avg  
+FROM months_summary ORDER BY months_summary.first_day DESC
+
+  VIEW : weeks_summary_view
+    CREATE VIEW weeks_summary_view AS SELECT weeks_summary.first_day AS first_day, ROUND(weeks_summary.rhr_avg, 1) AS rhr , ROUND(weeks_summary.inactive_hr_avg, 1) AS inactive_hr , ROUND(weeks_summary.weight_avg, 1) AS weight , weeks_summary.intensity_time AS intensity_time, weeks_summary.moderate_activity_time AS moderate_activity_time, weeks_summary.vigorous_activity_time AS vigorous_activity_time, weeks_summary.steps AS total_steps, ROUND(round(steps / 7), 1) AS steps_avg , ROUND(round((steps * 100) / steps_goal), 1) AS steps_goal_percent , ROUND(floors, 1) AS total_floors , ROUND(round(floors / 7), 1) AS floors_avg , ROUND(round((floors * 100) / floors_goal), 1) AS floors_goal_percent , weeks_summary.sleep_avg AS sleep_avg, weeks_summary.rem_sleep_avg AS rem_sleep_avg, ROUND(weeks_summary.stress_avg, 1) AS stress_avg , ROUND(weeks_summary.calories_avg, 1) AS calories_avg , ROUND(weeks_summary.calories_bmr_avg, 1) AS calories_bmr_avg , ROUND(weeks_summary.calories_active_avg, 1) AS calories_active_avg , ROUND(weeks_summary.calories_consumed_avg, 1) AS calories_consumed_avg , ROUND(weeks_summary.calories_goal, 1) AS calories_goal , weeks_summary.activities AS activities, ROUND(weeks_summary.activities_calories, 1) AS activities_calories , ROUND(weeks_summary.activities_distance, 1) AS activities_distance , ROUND(weeks_summary.hydration_goal, 1) AS hydration_goal , ROUND(weeks_summary.hydration_avg, 1) AS hydration_avg , ROUND(weeks_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(weeks_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(weeks_summary.spo2_avg, 1) AS spo2_avg , ROUND(weeks_summary.rr_waking_avg, 1) AS rr_waking_avg  
+FROM weeks_summary ORDER BY weeks_summary.first_day DESC
+
+  VIEW : years_summary_view
+    CREATE VIEW years_summary_view AS SELECT years_summary.first_day AS first_day, ROUND(years_summary.rhr_avg, 1) AS rhr , ROUND(years_summary.inactive_hr_avg, 1) AS inactive_hr , ROUND(years_summary.weight_avg, 1) AS weight , years_summary.intensity_time AS intensity_time, years_summary.moderate_activity_time AS moderate_activity_time, years_summary.vigorous_activity_time AS vigorous_activity_time, years_summary.steps AS total_steps, ROUND(round(steps / 365), 1) AS steps_avg , ROUND(round((steps * 100) / steps_goal), 1) AS steps_goal_percent , ROUND(floors, 1) AS total_floors , ROUND(round(floors / 365), 1) AS floors_avg , ROUND(round((floors * 100) / floors_goal), 1) AS floors_goal_percent , years_summary.sleep_avg AS sleep_avg, years_summary.rem_sleep_avg AS rem_sleep_avg, ROUND(years_summary.stress_avg, 1) AS stress_avg , ROUND(years_summary.calories_avg, 1) AS calories_avg , ROUND(years_summary.calories_bmr_avg, 1) AS calories_bmr_avg , ROUND(years_summary.calories_active_avg, 1) AS calories_active_avg , ROUND(years_summary.calories_consumed_avg, 1) AS calories_consumed_avg , ROUND(years_summary.calories_goal, 1) AS calories_goal , years_summary.activities AS activities, ROUND(years_summary.activities_calories, 1) AS activities_calories , ROUND(years_summary.activities_distance, 1) AS activities_distance , ROUND(years_summary.hydration_goal, 1) AS hydration_goal , ROUND(years_summary.hydration_avg, 1) AS hydration_avg , ROUND(years_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(years_summary.sweat_loss_avg, 1) AS sweat_loss_avg , ROUND(years_summary.spo2_avg, 1) AS spo2_avg , ROUND(years_summary.rr_waking_avg, 1) AS rr_waking_avg  
+FROM years_summary ORDER BY years_summary.first_day DESC
+
