@@ -4,10 +4,14 @@ def time_to_minutes(time_str):
     if not time_str:
         return None
     try:
-        h, m, s = map(int, time_str.split(":"))
-        return round(h * 60 + m + s / 60, 2)
-    except Exception:
-        return None
+        dt = datetime.strptime(time_str, "%H:%M:%S.%f")
+        return round(dt.hour * 60 + dt.minute + dt.second / 60, 2)
+    except ValueError:
+        try:
+            dt = datetime.strptime(time_str, "%H:%M:%S")
+            return round(dt.hour * 60 + dt.minute + dt.second / 60, 2)
+        except Exception:
+            return None
 
 def time_to_hours(time_str):
     if not time_str:

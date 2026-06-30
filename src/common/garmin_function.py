@@ -93,7 +93,7 @@ def get_activity_summary(n_days=30):
             "type": row["type"],
             "start_time": row["start_time"],
             "duration_min": time_to_minutes(row["elapsed_time"]),
-            "distance_km": round(row["distance"] / 1000, 2) if row["distance"] else None,
+            "distance_km": round(row["distance"], 2) if row["distance"] else None,
             "calories": row["calories"],
             "avg_hr": row["avg_hr"],
             "max_hr": row["max_hr"],
