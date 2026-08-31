@@ -53,7 +53,9 @@ def get_last_activity_details() -> dict:
     """
     Return details from the last activity recorded in json.
     No args
-    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature
+    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature.
+    Also includes a "running_dynamics" section (step length, vertical ratio/oscillation,
+    ground contact time, VO2 max) when the recording device provides it.
     """
     last_run = get_last_activity_id()
     activity_id = last_run["activity_id"]
@@ -65,7 +67,9 @@ def get_activity_details(activity_id : int) -> dict:
     Return details from the activity identified by the activity id.
     Args:
         activity_id: the activity id of the activity to retrieve
-    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature
+    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature.
+    Also includes a "running_dynamics" section (step length, vertical ratio/oscillation,
+    ground contact time, VO2 max) when the recording device provides it.
     """
     if activity_id is None:
         return {"error": "No activity found in database"}

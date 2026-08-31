@@ -2,7 +2,7 @@ import bisect
 from datetime import datetime, timedelta
 from .config import GARMIN_DB, GARMIN_ACTIVITIES, GARMIN_SUMMARY_DB, GARMIN_MONITORING_DB
 from .connection_helper import db_connection
-from .tools import time_to_hours, time_to_minutes
+from .tools import time_to_hours, time_to_minutes, time_to_ms
 
 def get_activity_records(activity_id: str):
     query = """
@@ -16,6 +16,31 @@ def get_activity_records(activity_id: str):
     if not rows:
         raise ValueError("Aucune donnée trouvée pour cette activité.")
     return rows
+
+def get_running_dynamics(activity_id: str):
+    query = """
+        SELECT avg_step_length, avg_vertical_ratio, avg_vertical_oscillation,
+               avg_gct_balance, avg_ground_contact_time, avg_stance_time_percent, vo2_max
+        FROM steps_activities
+        WHERE activity_id = ?
+    """
+    with db_connection(GARMIN_ACTIVITIES) as conn:
+        row = conn.execute(query, (activity_id,)).fetchone()
+    if row is None:
+        return None
+
+    dynamics = {
+        "avg_step_length_mm": row["avg_step_length"],
+        "avg_vertical_ratio_percent": row["avg_vertical_ratio"],
+        "avg_vertical_oscillation_mm": row["avg_vertical_oscillation"],
+        "avg_gct_balance_percent": row["avg_gct_balance"],
+        "avg_ground_contact_time_ms": time_to_ms(row["avg_ground_contact_time"]),
+        "avg_stance_time_percent": row["avg_stance_time_percent"],
+        "vo2_max": row["vo2_max"],
+    }
+    if all(v is None for v in dynamics.values()):
+        return None
+    return dynamics
 
 def get_last_activity_id():
     query = """

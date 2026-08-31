@@ -27,3 +27,19 @@ def time_to_hours(time_str):
             return round(dt.hour + dt.minute / 60 + dt.second / 3600, 2)
         except Exception:
             return None
+
+def time_to_ms(time_str):
+    if not time_str:
+        return None
+    try:
+        dt = datetime.strptime(time_str, "%H:%M:%S.%f")
+        ms = round((dt.hour * 3600 + dt.minute * 60 + dt.second) * 1000 + dt.microsecond / 1000, 1)
+    except ValueError:
+        try:
+            dt = datetime.strptime(time_str, "%H:%M:%S")
+            ms = (dt.hour * 3600 + dt.minute * 60 + dt.second) * 1000
+        except Exception:
+            return None
+    # GarminDB zero-fills this column when the device doesn't report it,
+    # so a literal 0 means "no data", not "0 ms".
+    return ms if ms else None

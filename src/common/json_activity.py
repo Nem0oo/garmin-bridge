@@ -1,5 +1,5 @@
 from datetime import datetime
-from .garmin_function import get_activity_records
+from .garmin_function import get_activity_records, get_running_dynamics
 
 
 def generate_activity_json(activity_id: str):
@@ -38,7 +38,7 @@ def generate_activity_json(activity_id: str):
         values = [record[key] for record in records]
         return values if any(v is not None for v in values) else None
 
-    return {
+    result = {
         "activity_id": activity_id,
         "summary": {
             "total_distance_km": total_distance_km,
@@ -60,3 +60,9 @@ def generate_activity_json(activity_id: str):
             "temperature_c": build_series("temperature_c"),
         }
     }
+
+    running_dynamics = get_running_dynamics(activity_id)
+    if running_dynamics:
+        result["running_dynamics"] = running_dynamics
+
+    return result
