@@ -13,7 +13,8 @@ def get_activity_fit_path(activity_id: str) -> Path:
 
 def get_activity_records(activity_id: str):
     query = """
-        SELECT timestamp, distance, cadence, altitude, hr, rr, speed, temperature
+        SELECT timestamp, distance, cadence, fractional_cadence, altitude, hr, rr, speed, temperature,
+               power, vertical_oscillation, vertical_ratio, step_length, ground_contact_time
         FROM activity_records
         WHERE activity_id = ?
         ORDER BY record
@@ -27,7 +28,8 @@ def get_activity_records(activity_id: str):
 def get_running_dynamics(activity_id: str):
     query = """
         SELECT avg_step_length, avg_vertical_ratio, avg_vertical_oscillation,
-               avg_gct_balance, avg_ground_contact_time, avg_stance_time_percent, vo2_max
+               avg_gct_balance, avg_ground_contact_time, avg_stance_time_percent, vo2_max,
+               steps, avg_pace, avg_moving_pace, max_pace, avg_steps_per_min, max_steps_per_min
         FROM steps_activities
         WHERE activity_id = ?
     """
@@ -44,6 +46,12 @@ def get_running_dynamics(activity_id: str):
         "avg_ground_contact_time_ms": time_to_ms(row["avg_ground_contact_time"]),
         "avg_stance_time_percent": row["avg_stance_time_percent"],
         "vo2_max": row["vo2_max"],
+        "steps": row["steps"],
+        "avg_pace_min_per_km": time_to_minutes(row["avg_pace"]),
+        "avg_moving_pace_min_per_km": time_to_minutes(row["avg_moving_pace"]),
+        "max_pace_min_per_km": time_to_minutes(row["max_pace"]),
+        "avg_steps_per_min": row["avg_steps_per_min"],
+        "max_steps_per_min": row["max_steps_per_min"],
     }
     if all(v is None for v in dynamics.values()):
         return None
@@ -107,8 +115,11 @@ def get_activity_summary(n_days=30):
     start_date = (datetime.now() - timedelta(days=n_days)).strftime("%Y-%m-%d")
 
     query = """
-    SELECT activity_id, name, type, start_time, elapsed_time, distance, calories,
-           avg_hr, max_hr, ascent, training_effect, anaerobic_training_effect,
+    SELECT activity_id, name, type, sub_sport, start_time, elapsed_time, distance, calories,
+           avg_hr, max_hr, avg_rr, max_rr, avg_cadence, max_cadence, avg_speed, max_speed,
+           avg_power, max_power, normalized_power,
+           ascent, descent, avg_temperature, max_temperature, min_temperature,
+           training_effect, anaerobic_training_effect, training_load,
            self_eval_feel, self_eval_effort
     FROM activities
     WHERE DATE(start_time) >= ?
@@ -123,15 +134,30 @@ def get_activity_summary(n_days=30):
             "activity_id": row["activity_id"],
             "name": row["name"],
             "type": row["type"],
+            "sub_sport": row["sub_sport"],
             "start_time": row["start_time"],
             "duration_min": time_to_minutes(row["elapsed_time"]),
             "distance_km": round(row["distance"], 2) if row["distance"] else None,
             "calories": row["calories"],
             "avg_hr": row["avg_hr"],
             "max_hr": row["max_hr"],
+            "avg_rr": row["avg_rr"],
+            "max_rr": row["max_rr"],
+            "avg_cadence": row["avg_cadence"],
+            "max_cadence": row["max_cadence"],
+            "avg_speed_kmh": row["avg_speed"],
+            "max_speed_kmh": row["max_speed"],
+            "avg_power_w": row["avg_power"],
+            "max_power_w": row["max_power"],
+            "normalized_power_w": row["normalized_power"],
             "elevation_gain_m": row["ascent"],
+            "elevation_loss_m": row["descent"],
+            "avg_temperature_c": row["avg_temperature"],
+            "max_temperature_c": row["max_temperature"],
+            "min_temperature_c": row["min_temperature"],
             "training_effect": row["training_effect"],
             "anaerobic_effect": row["anaerobic_training_effect"],
+            "training_load": row["training_load"],
             "self_eval_feel": row["self_eval_feel"],
             "self_eval_effort": row["self_eval_effort"]
         })
@@ -179,13 +205,32 @@ def get_daily_metrics(n_days=7):
 
         results.append({
             "date": day_str,
-            "resting_hr": row["rhr_avg"],
+            "resting_hr": row["rhr"],
+            "inactive_hr": row["inactive_hr"],
             "average_hr": row["hr_avg"],
+            "min_hr": row["hr_min"],
             "max_hr": row["hr_max"],
             "steps": row["steps"],
+            "steps_goal_percent": row["steps_goal_percent"],
+            "floors": row["floors"],
+            "floors_goal_percent": row["floors_goal_percent"],
             "calories": row["calories_avg"],
+            "calories_bmr": row["calories_bmr_avg"],
+            "calories_active": row["calories_active_avg"],
+            "calories_consumed": row["calories_consumed_avg"],
+            "calories_goal": row["calories_goal"],
             "stress_level": row["stress_avg"],
             "weight": last_weight_before(day_str),
+            "intensity_minutes": {
+                "total": time_to_minutes(row["intensity_time"]),
+                "moderate": time_to_minutes(row["moderate_activity_time"]),
+                "vigorous": time_to_minutes(row["vigorous_activity_time"]),
+            },
+            "activities": {
+                "count": row["activities"],
+                "calories": row["activities_calories"],
+                "distance": row["activities_distance"],
+            },
             "sleep": {
                 "duration_hours": time_to_hours(sleep["total_sleep"]) if sleep else None,
                 "deep_hours": time_to_hours(sleep["deep_sleep"]) if sleep else None,
@@ -201,9 +246,16 @@ def get_daily_metrics(n_days=7):
                 "min": row["bb_min"],
                 "max": row["bb_max"]
             },
-            "hydration_intake": row["hydration_intake"],
+            "hydration": {
+                "goal": row["hydration_goal"],
+                "avg": row["hydration_avg"],
+            },
+            "sweat_loss_avg": row["sweat_loss_avg"],
             "spo2_avg": row["spo2_avg"],
-            "rr_waking_avg": row["rr_waking_avg"]
+            "spo2_min": row["spo2_min"],
+            "rr_waking_avg": row["rr_waking_avg"],
+            "rr_max": row["rr_max"],
+            "rr_min": row["rr_min"]
         })
 
     return results

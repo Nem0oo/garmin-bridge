@@ -54,9 +54,11 @@ def get_last_activity_details() -> dict:
     """
     Return details from the last activity recorded in json.
     No args
-    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature.
+    Returns: dict containing timestamps, distances, cadences, altitude, heart rate, rr, speed, temperature,
+    power (watts), vertical oscillation, vertical ratio, step length and ground contact time as time series
+    when the recording device provides them.
     Also includes a "running_dynamics" section (step length, vertical ratio/oscillation,
-    ground contact time, VO2 max) when the recording device provides it.
+    ground contact time, pace, steps per minute, VO2 max) when the recording device provides it.
     """
     last_run = get_last_activity_id()
     activity_id = last_run["activity_id"]
@@ -68,9 +70,11 @@ def get_activity_details(activity_id : int) -> dict:
     Return details from the activity identified by the activity id.
     Args:
         activity_id: the activity id of the activity to retrieve
-    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature.
+    Returns: dict containing timestamps, distances, cadences, altitude, heart rate, rr, speed, temperature,
+    power (watts), vertical oscillation, vertical ratio, step length and ground contact time as time series
+    when the recording device provides them.
     Also includes a "running_dynamics" section (step length, vertical ratio/oscillation,
-    ground contact time, VO2 max) when the recording device provides it.
+    ground contact time, pace, steps per minute, VO2 max) when the recording device provides it.
     """
     if activity_id is None:
         return {"error": "No activity found in database"}
@@ -103,9 +107,11 @@ def get_last_n_activities_summary(days : int = 10) -> list:
     Args:
         days: Number of days to retrieve (default: 10)
     Returns:
-        list of activities containing activity_id, name, type, start_time, elapsed_time,
-        distance, calories, avg_hr, max_hr, ascent, training_effect,
-        anaerobic_training_effect,self_eval_feel, self_eval_effort
+        list of activities containing activity_id, name, type, sub_sport, start_time, elapsed_time,
+        distance, calories, avg_hr, max_hr, avg_rr, max_rr, avg_cadence, max_cadence,
+        avg_speed_kmh, max_speed_kmh, avg_power_w, max_power_w, normalized_power_w,
+        elevation_gain_m, elevation_loss_m, avg/max/min_temperature_c,
+        training_effect, anaerobic_training_effect, training_load, self_eval_feel, self_eval_effort
     """
     return get_activity_summary(days)
 
@@ -113,7 +119,11 @@ def get_last_n_activities_summary(days : int = 10) -> list:
 def get_daily_metrics(days : int = 2) -> dict:
     """
     Args : days is the number of days to be returned. default is 2
-    Returns a dict containing details from day to day metrics, such as weight, sleep data, stress level, steps, calories...
+    Returns a dict containing day to day metrics: resting/inactive/min/max heart rate, steps and
+    steps_goal_percent, floors and floors_goal_percent, calories (total, bmr, active, consumed, goal),
+    stress level, weight, intensity_minutes (total/moderate/vigorous), activities (count/calories/distance),
+    sleep data, body_battery (min/max), hydration (goal/avg), sweat_loss_avg, spo2 (avg/min) and
+    respiration rate (rr_waking_avg/rr_max/rr_min).
     """
     return fetch_daily_metrics(days)
 

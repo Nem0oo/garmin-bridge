@@ -7,7 +7,7 @@ from .plot_activity import generate_activity_plot
 from common.json_activity import generate_activity_json
 from common.security import verify_api_key
 from common.config import LOCK_FILE, STATUS_FILE, DOMAIN
-from common.garmin_function import get_daily_metrics, get_activity_summary, get_sleep_details, get_last_activity_id, get_activity_name, get_activity_fit_path
+from common.garmin_function import get_daily_metrics, get_activity_summary, get_sleep_details, get_hrv_status, get_last_activity_id, get_activity_name, get_activity_fit_path
 from common.sync import trigger_sync, read_sync_status
 
 app = FastAPI()
@@ -37,6 +37,12 @@ def available_endpoints(_: str = Depends(verify_api_key)):
         {
             "name": "Sleep Details",
             "url": "https://" + DOMAIN + "/sleepdetails",
+            "param": "days",
+            "default": "7"
+        },
+        {
+            "name": "HRV Status",
+            "url": "https://" + DOMAIN + "/hrvstatus",
             "param": "days",
             "default": "7"
         },
@@ -80,6 +86,10 @@ def activitysummary(days: int = Query(30, ge=1, le=365), _: str = Depends(verify
 @app.get("/sleepdetails")
 def sleepdetails(days: int = Query(7, ge=1, le=90), _: str = Depends(verify_api_key)):
     return get_sleep_details(days)
+
+@app.get("/hrvstatus")
+def hrvstatus(days: int = Query(7, ge=1, le=90), _: str = Depends(verify_api_key)):
+    return get_hrv_status(days)
 
 @app.get("/activities/{activity_id}/plot")
 def plot_activity(activity_id: str = FPath(..., description="ID de l'activité Garmin"), _: str = Depends(verify_api_key)):
