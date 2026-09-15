@@ -1,8 +1,15 @@
 import bisect
+from pathlib import Path
 from datetime import datetime, timedelta
-from .config import GARMIN_DB, GARMIN_ACTIVITIES, GARMIN_SUMMARY_DB, GARMIN_MONITORING_DB
+from .config import GARMIN_DB, GARMIN_ACTIVITIES, GARMIN_SUMMARY_DB, GARMIN_MONITORING_DB, GARMIN_FIT_FILES_DIR
 from .connection_helper import db_connection
 from .tools import time_to_hours, time_to_minutes, time_to_ms
+
+def get_activity_fit_path(activity_id: str) -> Path:
+    path = Path(GARMIN_FIT_FILES_DIR) / f"{activity_id}_ACTIVITY.fit"
+    if not path.is_file():
+        raise ValueError("Aucun fichier .fit trouvé pour cette activité.")
+    return path
 
 def get_activity_records(activity_id: str):
     query = """

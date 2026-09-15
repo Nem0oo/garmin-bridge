@@ -1,8 +1,9 @@
 import os
+import base64
 from typing import Annotated, Literal, Union
 from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
-from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary, get_sleep_details, get_hrv_status as fetch_hrv_status
+from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary, get_sleep_details, get_hrv_status as fetch_hrv_status, get_activity_fit_path
 from common.json_activity import generate_activity_json
 from mcp.server.fastmcp.server import TransportSecuritySettings
 from common.config import DOMAIN, API_KEY, GARMIN_TOKEN_STORE
@@ -75,6 +76,25 @@ def get_activity_details(activity_id : int) -> dict:
         return {"error": "No activity found in database"}
     result = generate_activity_json(activity_id)
     return result
+
+@mcp.tool()
+def get_activity_fit(activity_id: int) -> dict:
+    """
+    Return the raw .fit file for the activity identified by the activity id, base64-encoded.
+    Args:
+        activity_id: the activity id of the activity to retrieve
+    Returns:
+        dict with "filename" and "content_base64" (base64-encoded contents of the .fit file),
+        or an "error" message if no .fit file was found for this activity.
+    """
+    try:
+        path = get_activity_fit_path(activity_id)
+    except ValueError as e:
+        return {"error": str(e)}
+    return {
+        "filename": path.name,
+        "content_base64": base64.b64encode(path.read_bytes()).decode("ascii"),
+    }
 
 @mcp.tool()
 def get_last_n_activities_summary(days : int = 10) -> list:

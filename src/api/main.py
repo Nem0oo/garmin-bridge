@@ -1,13 +1,13 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import HTTPException, Depends, FastAPI, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi import Path as FPath
 import json
 from .plot_activity import generate_activity_plot
 from common.json_activity import generate_activity_json
 from common.security import verify_api_key
 from common.config import LOCK_FILE, STATUS_FILE, DOMAIN
-from common.garmin_function import get_daily_metrics, get_activity_summary, get_sleep_details, get_last_activity_id, get_activity_name
+from common.garmin_function import get_daily_metrics, get_activity_summary, get_sleep_details, get_last_activity_id, get_activity_name, get_activity_fit_path
 from common.sync import trigger_sync, read_sync_status
 
 app = FastAPI()
@@ -94,6 +94,16 @@ def plot_activity(activity_id: str = FPath(..., description="ID de l'activité G
 def activity_json(activity_id: str = FPath(..., description="ID de l'activité Garmin"), _: str = Depends(verify_api_key)):
     try:
         return generate_activity_json(activity_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/activities/{activity_id}/fit")
+def activity_fit(activity_id: str = FPath(..., description="ID de l'activité Garmin"), _: str = Depends(verify_api_key)):
+    try:
+        path = get_activity_fit_path(activity_id)
+        return FileResponse(path, media_type="application/octet-stream", filename=f"{activity_id}.fit")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
