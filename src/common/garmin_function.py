@@ -169,7 +169,7 @@ def get_daily_metrics(n_days=7):
 
     with db_connection(GARMIN_SUMMARY_DB) as summary_con:
         summary_rows = summary_con.execute("""
-            SELECT * FROM days_summary
+            SELECT * FROM days_summary_view
             WHERE day >= ?
             ORDER BY day ASC
         """, (start_date,)).fetchall()

@@ -502,9 +502,14 @@ def get_scheduled_workouts(year: int, month: int) -> list:
         year: Year (e.g., 2026)
         month: Month as integer 1-12
     Returns:
-        List of scheduled workouts with date and workout details
+        List of scheduled workouts and events (id = scheduled_id, null fields omitted)
     """
-    return _garmin_client().get_scheduled_workouts(year, month)
+    calendar = _garmin_client().get_scheduled_workouts(year, month)
+    return [
+        {k: v for k, v in item.items() if v is not None}
+        for item in calendar.get("calendarItems", [])
+        if item.get("itemType") in ("workout", "event")
+    ]
 
 
 if __name__ == "__main__":
