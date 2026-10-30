@@ -1,13 +1,9 @@
 import os
-import base64
 from typing import Annotated, Literal, Union
 from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
-from common.garmin_function import get_last_activity_id, get_daily_metrics as fetch_daily_metrics, get_activity_summary, get_sleep_details, get_hrv_status as fetch_hrv_status, get_activity_fit_path
-from common.json_activity import generate_activity_json
 from mcp.server.fastmcp.server import TransportSecuritySettings
 from common.config import DOMAIN, API_KEY, GARMIN_TOKEN_STORE
-from common.sync import trigger_sync, read_sync_status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
@@ -31,111 +27,6 @@ app.add_middleware(ApiKeyMiddleware)
 def server_health() -> str:
     """Test the MCP server"""
     return "Server is up and running !"
-
-@mcp.tool()
-def launch_synchronisation() -> bool:
-    """
-    Trigger fetching garmin data
-    Returns true when launched succesfully, false when the sync is already running
-    """
-    return not trigger_sync()["already_running"]
-
-@mcp.tool()
-def synchronisation_status() -> dict:
-    """
-    Returns the current synchronisation status.
-    Returns 'running' when sync is in progress, the full status dict when finished, or unknown with an error message if the check failed.
-    """
-    status = read_sync_status()
-    return status
-
-@mcp.tool()
-def get_last_activity_details() -> dict:
-    """
-    Return details from the last activity recorded in json.
-    No args
-    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature.
-    Also includes a "running_dynamics" section (step length, vertical ratio/oscillation,
-    ground contact time, VO2 max) when the recording device provides it.
-    """
-    last_run = get_last_activity_id()
-    activity_id = last_run["activity_id"]
-    return get_activity_details(activity_id)
-
-@mcp.tool()
-def get_activity_details(activity_id : int) -> dict:
-    """
-    Return details from the activity identified by the activity id.
-    Args:
-        activity_id: the activity id of the activity to retrieve
-    Returns: dict containing timestamps, distances, cadences,altitude, heart rate, rr, speed and temperature.
-    Also includes a "running_dynamics" section (step length, vertical ratio/oscillation,
-    ground contact time, VO2 max) when the recording device provides it.
-    """
-    if activity_id is None:
-        return {"error": "No activity found in database"}
-    result = generate_activity_json(activity_id)
-    return result
-
-@mcp.tool()
-def get_activity_fit(activity_id: int) -> dict:
-    """
-    Return the raw .fit file for the activity identified by the activity id, base64-encoded.
-    Args:
-        activity_id: the activity id of the activity to retrieve
-    Returns:
-        dict with "filename" and "content_base64" (base64-encoded contents of the .fit file),
-        or an "error" message if no .fit file was found for this activity.
-    """
-    try:
-        path = get_activity_fit_path(activity_id)
-    except ValueError as e:
-        return {"error": str(e)}
-    return {
-        "filename": path.name,
-        "content_base64": base64.b64encode(path.read_bytes()).decode("ascii"),
-    }
-
-@mcp.tool()
-def get_last_n_activities_summary(days : int = 10) -> list:
-    """
-    Return activity summarys from the last n days in json.
-    Args:
-        days: Number of days to retrieve (default: 10)
-    Returns:
-        list of activities containing activity_id, name, type, start_time, elapsed_time,
-        distance, calories, avg_hr, max_hr, ascent, training_effect,
-        anaerobic_training_effect,self_eval_feel, self_eval_effort
-    """
-    return get_activity_summary(days)
-
-@mcp.tool()
-def get_daily_metrics(days : int = 2) -> dict:
-    """
-    Args : days is the number of days to be returned. default is 2
-    Returns a dict containing details from day to day metrics, such as weight, sleep data, stress level, steps, calories...
-    """
-    return fetch_daily_metrics(days)
-
-@mcp.tool()
-def get_hrv_status(days: int = 7) -> list:
-    """
-    Returns HRV (Heart Rate Variability) status from the monitoring database.
-    Args:
-        days: Number of days to retrieve (default: 7)
-    Returns:
-        list of HRV status entries containing timestamp, weekly_average_ms, last_night_ms,
-        last_night_average_ms, baseline_low_ms, baseline_high_ms, status_raw, reading_count
-    """
-    return fetch_hrv_status(days)
-
-@mcp.tool()
-def get_sleep_data(days : int = 2) -> dict:
-    """
-    Args : days is the number of nights to be returned. default is 2
-    Returns a dict containing details from sleep metrics
-    """
-    return get_sleep_details(days)
 
 _STEP_TYPE = {
     "warmup":   {"stepTypeId": 1, "stepTypeKey": "warmup",   "displayOrder": 1},

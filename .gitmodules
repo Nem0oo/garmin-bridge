@@ -1,3 +1,0 @@
-[submodule "GarminDB"]
-	path = GarminDB
-	url = git@github.com:tcgoetz/GarminDB.git
