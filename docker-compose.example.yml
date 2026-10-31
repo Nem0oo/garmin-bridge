@@ -1,0 +1,14 @@
+services:
+  garmin-bridge:
+    build: .
+    image: garmin-bridge
+    container_name: garmin-bridge
+    ports:
+      - "8001:8001"
+    environment:
+      - TZ=REPLACE_WITH_YOUR_TIME_ZONE
+      - GARMIN_API_KEY=REPLACE_WITH_API_KEY
+      - LETSENCRYPT_HOST=REPLACE_WITH_HOST
+    volumes:
+      - ./garmin_tokens:/root/.GarminDb:rw
+    restart: unless-stopped
