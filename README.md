@@ -46,6 +46,8 @@ The MCP endpoint is `/mcp?api_key=<key>`.
 
 ### Docker-compose example
 
+Also available as [`docker-compose.example.yml`](docker-compose.example.yml):
+
 ```yml
 services:
   garmin-bridge:
