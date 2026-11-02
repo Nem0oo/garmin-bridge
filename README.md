@@ -42,7 +42,22 @@ docker run \
   garmin-bridge
 ```
 
-The MCP endpoint is `/mcp?api_key=<key>`.
+The MCP endpoint is `/mcp`, with the header `Authorization: Bearer <GARMIN_API_KEY>`. The key must be at least 32 characters (`openssl rand -hex 32`), otherwise the server refuses to start. A key passed in the URL (`/mcp?api_key=<key>`) is rejected with a 401: it would end up in proxy logs and history. The key is compared in constant time.
+
+```bash
+curl -X POST https://<host>/mcp \
+  -H "Authorization: Bearer $GARMIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+### Tests
+
+```bash
+docker run --rm -v "$PWD":/src -w /src python:3.12-slim \
+  sh -c "pip install -q -r requirements-dev.txt && python -m pytest -q"
+```
 
 ### Docker-compose example
 
@@ -78,7 +93,7 @@ It asks for your Garmin email, password and MFA code if needed (or reads `GARMIN
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `GARMIN_API_KEY` | yes | API key expected in the `api_key` query parameter |
+| `GARMIN_API_KEY` | yes | API key (at least 32 characters) expected in the `Authorization: Bearer <key>` header |
 | `LETSENCRYPT_HOST` | yes | Host name allowed by the MCP transport security |
 | `GARMIN_TOKEN_STORE` | no | Token file path (default `~/.GarminDb/garmin_tokens.json`) |
 | `PORT` | no | MCP server port (default `8001`) |
