@@ -3,16 +3,8 @@ from typing import Annotated, Literal, Union
 from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.server import TransportSecuritySettings
-from common.config import DOMAIN, API_KEY, GARMIN_TOKEN_STORE
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import JSONResponse
-
-class ApiKeyMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        api_key = request.query_params.get("api_key")
-        if api_key != API_KEY:
-            return JSONResponse(status_code=401, content={"error": "Unauthorized"})
-        return await call_next(request)
+from common.config import DOMAIN, GARMIN_TOKEN_STORE
+from common.security import ApiKeyMiddleware
 
 mcp = FastMCP(
     "garmin-bridge",
